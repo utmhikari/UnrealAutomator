@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "UnrealAutomator",
+	"Description": "automator for unreal4 engine, based on GAutomator",
+	"Category": "Test",
+	"CreatedBy": "utmhikari",
+	"CreatedByURL": "http://utmhikari.top/",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "UnrealAutomator",
+			"Type": "RuntimeAndProgram",
+			"LoadingPhase": "PostEngineInit"
+		}
+	]
+}
