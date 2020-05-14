@@ -4,12 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
+#include "Server.h"
 
 class FUnrealAutomatorModule : public IModuleInterface
 {
 public:
-
+	FUnrealAutomatorModule() :server(nullptr) {};
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+
+private:
+	UnrealAutomator::FServer* server;
 };
