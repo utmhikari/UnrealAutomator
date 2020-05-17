@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-#include "Server.h"
+#include "WebServer.h"
 
 class FUnrealAutomatorModule : public IModuleInterface
 {
 public:
-	FUnrealAutomatorModule() :server(nullptr) {};
+	FUnrealAutomatorModule() :WebServer(nullptr) {};
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
 private:
-	UnrealAutomator::FServer* server;
+	UnrealAutomator::FWebServer* WebServer;
 };
