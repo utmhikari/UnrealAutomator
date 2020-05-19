@@ -20,8 +20,8 @@
 			"Type": "Runtime",
 			"LoadingPhase": "PostEngineInit",
 			"WhitelistPlatforms": [
-				"Win64",
-				"Android"
+				"Android",
+				"Win64"
 			]
 		}
 	]

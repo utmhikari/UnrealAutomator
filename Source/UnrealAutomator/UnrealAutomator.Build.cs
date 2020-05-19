@@ -41,7 +41,8 @@ public class UnrealAutomator : ModuleRules
 				// ... add private dependencies that you statically link with here ...
 				"HTTP",
 				"HttpServer",
-				"Json"
+				"JsonUtilities",
+				"Json",
 			}
 			);
 		

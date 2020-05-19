@@ -44,10 +44,25 @@ namespace UnrealAutomator
 	 */
 	void FWebServer::BindRouters(TSharedPtr<IHttpRouter> HttpRouter)
 	{
+		// UE4 uses Map<String, Handle> to store router bindings, so that bind different verbs to a same HTTP path is not supported
+
+		/* ====================== Base Handler ==================== */
+
 		// health check
 		HttpRouter->BindRoute(FHttpPath(TEXT("/health")), EHttpServerRequestVerbs::VERB_GET, FWebUtil::CreateHandler(&FBaseHandler::HealthCheck));
 
 		/* ====================== Player Handler ==================== */
-		HttpRouter->BindRoute(FHttpPath(TEXT("/player/location")), EHttpServerRequestVerbs::VERB_GET, FWebUtil::CreateHandler(&FPlayerHandler::GetPlayerLocation));
+
+		// get player location
+		HttpRouter->BindRoute(FHttpPath(TEXT("/player/get_location")), EHttpServerRequestVerbs::VERB_GET, FWebUtil::CreateHandler(&FPlayerHandler::GetPlayerLocation)); 
+
+		// set player location
+		HttpRouter->BindRoute(FHttpPath(TEXT("/player/set_location")), EHttpServerRequestVerbs::VERB_PUT, FWebUtil::CreateHandler(&FPlayerHandler::SetPlayerLocation));
+
+		// get player rotation
+		HttpRouter->BindRoute(FHttpPath(TEXT("/player/get_rotation")), EHttpServerRequestVerbs::VERB_GET, FWebUtil::CreateHandler(&FPlayerHandler::GetPlayerRotation));
+
+		// set player rotation
+		HttpRouter->BindRoute(FHttpPath(TEXT("/player/set_rotation")), EHttpServerRequestVerbs::VERB_PUT, FWebUtil::CreateHandler(&FPlayerHandler::SetPlayerRotation));
 	}
 }

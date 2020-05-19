@@ -16,6 +16,8 @@ namespace UnrealAutomator
 	public:	
 		static FHttpRequestHandler CreateHandler(const FHttpResponser& HttpResponser);
 
+		static TSharedPtr<FJsonObject> GetRequestBody(const FHttpServerRequest& Request);
+
 		static TUniquePtr<FHttpServerResponse> SuccessResponse(TSharedPtr<FJsonObject> Data, FString Message);
 
 		static TUniquePtr<FHttpServerResponse> SuccessResponse(TSharedPtr<FJsonObject> Data);

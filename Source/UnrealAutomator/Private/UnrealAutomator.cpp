@@ -9,8 +9,12 @@
 void FUnrealAutomatorModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	Port = DEFAULT_PORT;
-	UnrealAutomator::FWebServer::Start(Port);
+	UnrealAutomator::FWebServer::Stop();
+	if (!GIsEditor)
+	{
+		Port = DEFAULT_PORT;
+		UnrealAutomator::FWebServer::Start(Port);
+	}
 }
 
 void FUnrealAutomatorModule::ShutdownModule()

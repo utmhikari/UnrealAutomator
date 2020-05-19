@@ -1,5 +1,7 @@
 #include "Util/WebUtil.h"
-
+#include "Util/StringUtil.h"
+#include "Log.h"
+#include "Engine.h"
 #include "Runtime/Json/Public/Serialization/JsonTypes.h"
 #include "Runtime/Json/Public/Dom/JsonValue.h"
 #include "Runtime/Json/Public/Serialization/JsonWriter.h"
@@ -26,6 +28,40 @@ namespace UnrealAutomator
 			OnComplete(MoveTemp(Response));
 			return true;
 		};
+	}
+
+	/**
+	 * Get request json body, parse TArray<uint8> to TSharedPtr<FJsonObject>
+	 */
+	TSharedPtr<FJsonObject> FWebUtil::GetRequestBody(const FHttpServerRequest& Request)
+	{
+		// TODO: check request header 
+		if (GEngine != nullptr)
+		{
+			for (auto& HeaderElem : Request.Headers)
+			{
+				auto Value = FString::Join(HeaderElem.Value, TEXT(","));
+				FString Message;
+				Message.Append(HeaderElem.Key);
+				Message.AppendChars(TEXT(": "), 2);
+				Message.Append(Value);
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, Message);
+			}
+		}
+		
+		TArray<uint8> RequestBodyBytes = Request.Body;
+		FString RequestBodyString = FStringUtil::ByteArrayToString(RequestBodyBytes);
+		if (GEngine != nullptr)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, RequestBodyString);
+		}
+		TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(RequestBodyString);
+		TSharedPtr<FJsonObject> JsonObject;
+		if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
+		{
+			return JsonObject;
+		}
+		return nullptr;
 	}
 
 	/**

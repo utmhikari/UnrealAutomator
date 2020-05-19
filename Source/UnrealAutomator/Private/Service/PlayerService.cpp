@@ -1,24 +1,12 @@
 #include "PlayerService.h"
-
+#include "Log.h"
 #include "Engine.h"
+
 
 namespace UnrealAutomator
 {
-	/**
-	 * Get location of current player
-	 */
-	FVector FPlayerService::GetPlayerLocation()
-	{
-		auto PlayerPawn = GetPlayerPawn();
-		if (PlayerPawn == nullptr)
-		{
-			return FVector(0.0);
-		}
-		return PlayerPawn->GetActorLocation();
-	}
+	/* ================= Public Methods ==================== */
 
-
-	/* ================= Private Methods ==================== */
 
 	/**
 	 * Get player pawn
@@ -27,18 +15,32 @@ namespace UnrealAutomator
 	{
 		if (GEngine == nullptr)
 		{
+			UE_LOG(UALog, Warning, TEXT("Cannot find GEngine!"));
 			return nullptr;
 		}
-		auto World = GEngine->GetWorld();
+		auto WorldContexts = GEngine->GetWorldContexts();
+		if (WorldContexts.Num() == 0)
+		{
+			UE_LOG(UALog, Warning, TEXT("No world context!"));
+			return nullptr;
+		}
+		auto World = WorldContexts[0].World();
 		if (World == nullptr)
 		{
+			UE_LOG(UALog, Warning, TEXT("No current world!"));
 			return nullptr;
 		}
 		auto FirstPlayerController = World->GetFirstPlayerController();
 		if (FirstPlayerController == nullptr)
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Failed to get first player controller!"));
 			return nullptr;
 		}
-		return FirstPlayerController->GetPawn();
+		auto PlayerPawn = FirstPlayerController->GetPawn();
+		if (PlayerPawn == nullptr)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Player is not a pawn or not under control!"));
+		}
+		return PlayerPawn;
 	}
 }

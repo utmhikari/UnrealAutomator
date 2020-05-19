@@ -9,9 +9,6 @@ namespace UnrealAutomator
 	class FPlayerService
 	{
 	public:
-		static FVector GetPlayerLocation();
-
-	private:
 		static APawn* GetPlayerPawn();
 	};
 }
