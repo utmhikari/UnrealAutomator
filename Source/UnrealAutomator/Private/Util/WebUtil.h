@@ -9,10 +9,13 @@
 
 namespace UnrealAutomator
 {
+	typedef TFunction<TUniquePtr<FHttpServerResponse>(const FHttpServerRequest& Request)> FHttpResponser;
 
 	class FWebUtil
 	{
-	public:
+	public:	
+		static FHttpRequestHandler CreateHandler(const FHttpResponser& HttpResponser);
+
 		static TUniquePtr<FHttpServerResponse> SuccessResponse(TSharedPtr<FJsonObject> Data, FString Message);
 
 		static TUniquePtr<FHttpServerResponse> SuccessResponse(TSharedPtr<FJsonObject> Data);
@@ -26,11 +29,10 @@ namespace UnrealAutomator
 		static TUniquePtr<FHttpServerResponse> ErrorResponse(FString Message, int32 Code);
 
 		static TUniquePtr<FHttpServerResponse> ErrorResponse(FString Message);
-
 	private:
-		static TUniquePtr<FHttpServerResponse> JsonResponse(TSharedPtr<FJsonObject> Data, FString Message, bool Success, int32 Code);
-		
 		static const int32 SUCCESS_CODE = 0;
 		static const int32 DEFAULT_ERROR_CODE = -1;
+
+		static TUniquePtr<FHttpServerResponse> JsonResponse(TSharedPtr<FJsonObject> Data, FString Message, bool Success, int32 Code);
 	};
 }

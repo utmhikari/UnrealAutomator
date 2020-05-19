@@ -4,16 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-#include "WebServer.h"
+
 
 class FUnrealAutomatorModule : public IModuleInterface
 {
 public:
-	FUnrealAutomatorModule() :WebServer(nullptr) {};
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
+	uint32 Port;
+
 private:
-	UnrealAutomator::FWebServer* WebServer;
+	static const uint32 DEFAULT_PORT = 26016;
 };

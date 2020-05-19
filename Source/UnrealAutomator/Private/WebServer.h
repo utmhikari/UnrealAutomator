@@ -1,25 +1,17 @@
 #pragma once
 
-#include "CoreMinimal.h"
-
-#include "Runtime/Online/HTTPServer/Public/HttpServerModule.h"
+#include "Runtime/Online/HTTPServer/Public/IHttpRouter.h"
 
 namespace UnrealAutomator
 {
 	class FWebServer
 	{
 	public:
-		FWebServer();
-		FWebServer(uint32 Port);
-		virtual ~FWebServer();
+		static void Start(uint32 Port);
+		static void Stop();
 
 	private:
-		FHttpServerModule* HttpServerModule;
-		uint32 Port;
-		
-		static const uint32 DEFAULT_PORT = 26016;
-
-		void Init();
-		void BindRouters();
+		static void BindRouters(TSharedPtr<IHttpRouter> HttpRouter);
 	};
-};
+
+}

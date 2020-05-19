@@ -1,44 +1,26 @@
 #include "WebServer.h"
-#include "Log.h"
 #include "Util/WebUtil.h"
 #include "Engine.h"
+#include "Log.h"
+#include "Runtime/Online/HTTPServer/Public/HttpServerModule.h"
 #include "Runtime/Online/HTTPServer/Public/HttpPath.h"
-#include "Runtime/Online/HTTPServer/Public/IHttpRouter.h"
+
 
 // Handlers
 #include "Handler/BaseHandler.h"
+#include "Handler/PlayerHandler.h"
 
 namespace UnrealAutomator
-{
-	FWebServer::FWebServer()
-	{
-		Port = DEFAULT_PORT;
-		Init();
-	}
-
-	FWebServer::FWebServer(uint32 Port)
-	{
-		this->Port = Port;
-		Init();
-	}
-
-	FWebServer::~FWebServer()
-	{
-		if (HttpServerModule != nullptr)
-		{
-			UE_LOG(UALog, Log, TEXT("Stopping UnrealAutomator Server..."));
-			HttpServerModule->StopAllListeners();
-		}
-	}
-
+{	
 	/**
-	 * Initialize web server
+	 * Start server
 	 */
-	void FWebServer::Init()
+	void FWebServer::Start(uint32 Port)
 	{
-		HttpServerModule = &FHttpServerModule::Get();
+		auto HttpServerModule = &FHttpServerModule::Get();
 		UE_LOG(UALog, Log, TEXT("Starting UnrealAutomator Server..."));
-		BindRouters();
+		TSharedPtr<IHttpRouter> HttpRouter = HttpServerModule->GetHttpRouter(Port);
+		BindRouters(HttpRouter);
 		// Start Listeners
 		HttpServerModule->StartAllListeners();
 		if (GEngine != nullptr)
@@ -48,16 +30,24 @@ namespace UnrealAutomator
 	}
 
 	/**
-	 * bind routes with handlers
+	 * Stop server
 	 */
-	void FWebServer::BindRouters()
+	void FWebServer::Stop()
 	{
-		TSharedPtr<IHttpRouter> HttpRouter = HttpServerModule->GetHttpRouter(Port);
-
-		// health check
-		HttpRouter->BindRoute(
-			FHttpPath(TEXT("/health")),
-			EHttpServerRequestVerbs::VERB_GET,
-			&FBaseHandler::HealthCheck);
+		UE_LOG(UALog, Log, TEXT("Stopping UnrealAutomator Server..."));
+		auto HttpServerModule = &FHttpServerModule::Get();
+		HttpServerModule->StopAllListeners();
 	}
-};
+
+	/**
+	 * Bind routers with handlers
+	 */
+	void FWebServer::BindRouters(TSharedPtr<IHttpRouter> HttpRouter)
+	{
+		// health check
+		HttpRouter->BindRoute(FHttpPath(TEXT("/health")), EHttpServerRequestVerbs::VERB_GET, FWebUtil::CreateHandler(&FBaseHandler::HealthCheck));
+
+		/* ====================== Player Handler ==================== */
+		HttpRouter->BindRoute(FHttpPath(TEXT("/player/location")), EHttpServerRequestVerbs::VERB_GET, FWebUtil::CreateHandler(&FPlayerHandler::GetPlayerLocation));
+	}
+}

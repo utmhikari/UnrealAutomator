@@ -17,8 +17,12 @@
 	"Modules": [
 		{
 			"Name": "UnrealAutomator",
-			"Type": "RuntimeAndProgram",
-			"LoadingPhase": "PostEngineInit"
+			"Type": "Runtime",
+			"LoadingPhase": "PostEngineInit",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Android"
+			]
 		}
 	]
 }

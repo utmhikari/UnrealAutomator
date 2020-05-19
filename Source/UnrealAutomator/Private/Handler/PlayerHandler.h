@@ -1,15 +1,14 @@
 #pragma once
 
+
 #include "Runtime/Online/HTTPServer/Public/HttpServerRequest.h"
 #include "Runtime/Online/HTTPServer/Public/HttpResultCallback.h"
 
 namespace UnrealAutomator
 {
-	class FBaseHandler
+	class FPlayerHandler
 	{
 	public:
-		static TUniquePtr<FHttpServerResponse> HealthCheck(const FHttpServerRequest& Request);
-
-
+		static TUniquePtr<FHttpServerResponse> GetPlayerLocation(const FHttpServerRequest& Request);
 	};
 }

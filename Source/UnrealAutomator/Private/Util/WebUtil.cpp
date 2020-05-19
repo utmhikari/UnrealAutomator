@@ -10,6 +10,25 @@ namespace UnrealAutomator
 	/** ========================== Public Methods ======================= */
 
 	/**
+	 * Create HTTP request handler (controller)
+	 * In UE4, invoke OnComplete and return false will cause crash
+	 * CreateHandler method is used to wrap the responser, in order to avoid the crash
+	 */
+	FHttpRequestHandler FWebUtil::CreateHandler(const FHttpResponser& HttpResponser)
+	{
+		return [HttpResponser](const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete)
+		{
+			auto Response = HttpResponser(Request);
+			if (Response == nullptr)
+			{
+				return false;
+			}
+			OnComplete(MoveTemp(Response));
+			return true;
+		};
+	}
+
+	/**
 	 * Success response (data & message)
 	 */
 	TUniquePtr<FHttpServerResponse> FWebUtil::SuccessResponse(TSharedPtr<FJsonObject> Data, FString Message)

@@ -1,21 +1,23 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #include "UnrealAutomator.h"
-#include "Engine.h"
-#include "Log.h"
+#include "WebServer.h"
+
 
 #define LOCTEXT_NAMESPACE "FUnrealAutomatorModule"
 
 void FUnrealAutomatorModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	WebServer = new UnrealAutomator::FWebServer();
+	Port = DEFAULT_PORT;
+	UnrealAutomator::FWebServer::Start(Port);
 }
 
 void FUnrealAutomatorModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that supporWt dynamic reloading,
 	// we call this function before unloading the module.
+	UnrealAutomator::FWebServer::Stop();
 }
 
 #undef LOCTEXT_NAMESPACE
