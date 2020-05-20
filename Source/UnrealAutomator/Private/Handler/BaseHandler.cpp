@@ -5,10 +5,6 @@
 
 namespace UnrealAutomator
 {
-
-	/**
-	 * Health Check
-	 */
 	TUniquePtr<FHttpServerResponse> FBaseHandler::HealthCheck(const FHttpServerRequest& Request)
 	{
 		UE_LOG(UALog, Log, TEXT("Health Check"));

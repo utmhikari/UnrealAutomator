@@ -9,6 +9,9 @@ namespace UnrealAutomator
 	class FPlayerService
 	{
 	public:
+		/**
+		 * Get player pawn
+		 */
 		static APawn* GetPlayerPawn();
 	};
 }

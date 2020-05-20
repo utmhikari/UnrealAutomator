@@ -1,15 +1,12 @@
 #include "Handler/PlayerHandler.h"
+#include "Log.h"
 #include "Util/WebUtil.h"
 #include "Service/PlayerService.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "GameFramework/Pawn.h"
 
-
 namespace UnrealAutomator
 {
-	/**
-	 * get player location
-	 */
 	TUniquePtr<FHttpServerResponse> FPlayerHandler::GetPlayerLocation(const FHttpServerRequest& Request)
 	{
 		APawn* PlayerPawn = FPlayerService::GetPlayerPawn();
@@ -25,30 +22,32 @@ namespace UnrealAutomator
 		return FWebUtil::SuccessResponse(Body);
 	}
 
-	/**
-	 * set player location
-	 */
 	TUniquePtr<FHttpServerResponse> FPlayerHandler::SetPlayerLocation(const FHttpServerRequest& Request)
 	{
-		TSharedPtr<FJsonObject> RequestBody = FWebUtil::GetRequestBody(Request);
+		// get request json and player pawn
+		TSharedPtr<FJsonObject> RequestBody = FWebUtil::GetRequestJsonBody(Request);
 		if (RequestBody == nullptr)
 		{
-			return FWebUtil::ErrorResponse(TEXT("Failed to parse request body as json!"));
+			return FWebUtil::ErrorResponse(TEXT("Failed to parse request body to json!"));
 		}
 		APawn* PlayerPawn = FPlayerService::GetPlayerPawn();
 		if (PlayerPawn == nullptr)
 		{
 			return FWebUtil::ErrorResponse(TEXT("Failed to get valid player pawn instance!"));
 		}
-		FVector PlayerLocation = PlayerPawn->GetActorLocation();
-		TSharedPtr<FJsonObject> Body = MakeShareable(new FJsonObject());
-		// TODO: set location
-		return FWebUtil::SuccessResponse(Body);
+		// set new location
+		FVector NewLocation;
+		NewLocation.X = RequestBody->GetNumberField(TEXT("x"));
+		NewLocation.Y = RequestBody->GetNumberField(TEXT("y"));
+		NewLocation.Z = RequestBody->GetNumberField(TEXT("z"));
+		UE_LOG(UALog, Log, TEXT("Set player new location to (%.2f, %.2f, %.2f)"), NewLocation.X, NewLocation.Y, NewLocation.Z);
+		if (!PlayerPawn->SetActorLocation(NewLocation, false, nullptr, ETeleportType::ResetPhysics))
+		{
+			return FWebUtil::ErrorResponse(TEXT("Failed to set player location!"));
+		}
+		return FWebUtil::SuccessResponse(TEXT("Player location set successfully!"));
 	}
 
-	/**
-	 * get player rotation
-	 */
 	TUniquePtr<FHttpServerResponse> FPlayerHandler::GetPlayerRotation(const FHttpServerRequest& Request)
 	{
 		APawn* PlayerPawn = FPlayerService::GetPlayerPawn();
@@ -64,24 +63,29 @@ namespace UnrealAutomator
 		return FWebUtil::SuccessResponse(Body);
 	}
 
-	/**
-	 * set player rotation
-	 */
 	TUniquePtr<FHttpServerResponse> FPlayerHandler::SetPlayerRotation(const FHttpServerRequest& Request)
 	{
-		TSharedPtr<FJsonObject> RequestBody = FWebUtil::GetRequestBody(Request);
+		// get request json and player pawn
+		TSharedPtr<FJsonObject> RequestBody = FWebUtil::GetRequestJsonBody(Request);
 		if (RequestBody == nullptr)
 		{
-			return FWebUtil::ErrorResponse(TEXT("Failed to parse request body as json!"));
+			return FWebUtil::ErrorResponse(TEXT("Failed to parse request body to json!"));
 		}
 		APawn* PlayerPawn = FPlayerService::GetPlayerPawn();
 		if (PlayerPawn == nullptr)
 		{
 			return FWebUtil::ErrorResponse(TEXT("Failed to get valid player pawn instance!"));
 		}
-		FRotator PlayerRotation = PlayerPawn->GetActorRotation();
-		TSharedPtr<FJsonObject> Body = MakeShareable(new FJsonObject());
-		// TODO: set rotation
-		return FWebUtil::SuccessResponse(Body);
+		// set new rotation
+		FRotator NewRotation;
+		NewRotation.Pitch = RequestBody->GetNumberField("pitch");
+		NewRotation.Yaw = RequestBody->GetNumberField("yaw");
+		NewRotation.Roll = RequestBody->GetNumberField("roll");
+		UE_LOG(UALog, Log, TEXT("Set player new rotation to (pitch: %.2f, yaw: %.2f, roll: %.2f)"), NewRotation.Pitch, NewRotation.Yaw, NewRotation.Roll);
+		if (!PlayerPawn->SetActorRotation(NewRotation, ETeleportType::ResetPhysics))
+		{
+			return FWebUtil::ErrorResponse(TEXT("Failed to set player rotation!"));
+		}
+		return FWebUtil::SuccessResponse(TEXT("Player rotation set successfully!"));
 	}
 }

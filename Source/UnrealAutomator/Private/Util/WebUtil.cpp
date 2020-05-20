@@ -1,5 +1,4 @@
 #include "Util/WebUtil.h"
-#include "Util/StringUtil.h"
 #include "Log.h"
 #include "Engine.h"
 #include "Runtime/Json/Public/Serialization/JsonTypes.h"
@@ -11,11 +10,6 @@ namespace UnrealAutomator
 {
 	/** ========================== Public Methods ======================= */
 
-	/**
-	 * Create HTTP request handler (controller)
-	 * In UE4, invoke OnComplete and return false will cause crash
-	 * CreateHandler method is used to wrap the responser, in order to avoid the crash
-	 */
 	FHttpRequestHandler FWebUtil::CreateHandler(const FHttpResponser& HttpResponser)
 	{
 		return [HttpResponser](const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete)
@@ -30,67 +24,69 @@ namespace UnrealAutomator
 		};
 	}
 
-	/**
-	 * Get request json body, parse TArray<uint8> to TSharedPtr<FJsonObject>
-	 */
-	TSharedPtr<FJsonObject> FWebUtil::GetRequestBody(const FHttpServerRequest& Request)
+	TSharedPtr<FJsonObject> FWebUtil::GetRequestJsonBody(const FHttpServerRequest& Request)
 	{
-		// TODO: check request header 
-		if (GEngine != nullptr)
+		// check if content type is application/json
+		bool IsUTF8JsonContent = IsUTF8JsonRequestContent(Request);
+		if (!IsUTF8JsonContent)
 		{
-			for (auto& HeaderElem : Request.Headers)
-			{
-				auto Value = FString::Join(HeaderElem.Value, TEXT(","));
-				FString Message;
-				Message.Append(HeaderElem.Key);
-				Message.AppendChars(TEXT(": "), 2);
-				Message.Append(Value);
-				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, Message);
-			}
+			UE_LOG(UALog, Warning, TEXT("caught request not in utf-8 application/json body content!"));
+			return nullptr;
 		}
 		
+		// body to utf8 string
 		TArray<uint8> RequestBodyBytes = Request.Body;
-		FString RequestBodyString = FStringUtil::ByteArrayToString(RequestBodyBytes);
+		FString RequestBodyString = FString(UTF8_TO_TCHAR(RequestBodyBytes.GetData()));
+#if WITH_EDITOR
 		if (GEngine != nullptr)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, RequestBodyString);
 		}
+#endif
+
+		// string to json
 		TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(RequestBodyString);
-		TSharedPtr<FJsonObject> JsonObject;
-		if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
+		TSharedPtr<FJsonObject> RequestBody;
+		if (!FJsonSerializer::Deserialize(JsonReader, RequestBody))
 		{
-			return JsonObject;
+			UE_LOG(UALog, Warning, TEXT("failed to parse request string to json: %s"), *RequestBodyString);
+			return nullptr;
 		}
-		return nullptr;
+		return RequestBody;
 	}
 
-	/**
-	 * Success response (data & message)
-	 */
+	template <typename UStructType>
+	static UStructType* FWebUtil::GetRequestUStructBody(const FHttpServerRequest& Request)
+	{
+		TSharedPtr<FJsonObject> JsonBody = FWebUtil::GetRequestJsonBody(Request);
+		if (JsonBody == nullptr)
+		{
+			return nullptr;
+		}
+		UStructType* UStructBody;
+		if (!FJsonObjectConverter::JsonObjectToUStruct(JsonBody, UStructBody))
+		{
+			UE_LOG(UALog, Warning, TEXT("failed to parse json body to ustruct!"))
+			return nullptr;
+		}
+		return UStructBody;
+	}
+
 	TUniquePtr<FHttpServerResponse> FWebUtil::SuccessResponse(TSharedPtr<FJsonObject> Data, FString Message)
 	{
 		return JsonResponse(Data, Message, true, SUCCESS_CODE);
 	}
 
-	/**
-	 * Success response (data only)
-	 */
 	TUniquePtr<FHttpServerResponse> FWebUtil::SuccessResponse(TSharedPtr<FJsonObject> Data)
 	{
 		return SuccessResponse(Data, TEXT(""));
 	}
 
-	/**
-	 * Success response (message only)
-	 */
 	TUniquePtr<FHttpServerResponse> FWebUtil::SuccessResponse(FString Message)
 	{
 		return SuccessResponse(MakeShareable(new FJsonObject()), Message);
 	}
 
-	/**
-	 * Error response (data & message & code)
-	 */
 	TUniquePtr<FHttpServerResponse> FWebUtil::ErrorResponse(TSharedPtr<FJsonObject> Data, FString Message, int32 Code)
 	{
 		if (Code == SUCCESS_CODE)
@@ -100,25 +96,16 @@ namespace UnrealAutomator
 		return JsonResponse(Data, Message, false, Code);
 	}
 
-	/**
-	 * Error response (data & message)
-	 */
 	TUniquePtr<FHttpServerResponse> FWebUtil::ErrorResponse(TSharedPtr<FJsonObject> Data, FString Message)
 	{
 		return ErrorResponse(Data, Message, DEFAULT_ERROR_CODE);
 	}
 
-	/**
-	 * Error response (message & code)
-	 */
 	TUniquePtr<FHttpServerResponse> FWebUtil::ErrorResponse(FString Message, int32 Code)
 	{
 		return ErrorResponse(MakeShareable(new FJsonObject()), Message, Code);
 	}
 
-	/**
-	 * Error response (message only)
-	 */
 	TUniquePtr<FHttpServerResponse> FWebUtil::ErrorResponse(FString Message)
 	{
 		return ErrorResponse(MakeShareable(new FJsonObject()), Message, DEFAULT_ERROR_CODE);
@@ -126,9 +113,6 @@ namespace UnrealAutomator
 
 	/** ========================== Private Methods ======================= */
 
-	/**
-	 * Create json response from data, message, success status and user defined error code
-	 */
 	TUniquePtr<FHttpServerResponse> FWebUtil::JsonResponse(TSharedPtr<FJsonObject> Data, FString Message, bool Success, int32 Code)
 	{
 		TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
@@ -140,5 +124,40 @@ namespace UnrealAutomator
 		TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
 		FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
 		return FHttpServerResponse::Create(JsonString, TEXT("application/json"));
+	}
+
+	bool FWebUtil::IsUTF8JsonRequestContent(const FHttpServerRequest& Request)
+	{
+		bool bIsUTF8JsonContent = false;
+		for (auto& HeaderElem : Request.Headers)
+		{
+			if (HeaderElem.Key == TEXT("Content-type"))
+			{
+				for (auto& Value : HeaderElem.Value)
+				{
+					auto LowerValue = Value.ToLower();
+					if (LowerValue.StartsWith(TEXT("charset=")) && LowerValue != TEXT("charset=utf-8"))
+					{
+						return false;
+					}
+					if (LowerValue == TEXT("application/json") || LowerValue == TEXT("text/json"))
+					{
+						bIsUTF8JsonContent = true;
+					}
+				}
+			}
+#if WITH_EDITOR
+			auto Value = FString::Join(HeaderElem.Value, TEXT(","));
+			FString Message;
+			Message.Append(HeaderElem.Key);
+			Message.AppendChars(TEXT(": "), 2);
+			Message.Append(Value);
+			if (GEngine != nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, Message);
+			}
+#endif
+		}
+		return bIsUTF8JsonContent;
 	}
 }

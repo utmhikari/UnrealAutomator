@@ -7,10 +7,6 @@ namespace UnrealAutomator
 {
 	/* ================= Public Methods ==================== */
 
-
-	/**
-	 * Get player pawn
-	 */
 	APawn* FPlayerService::GetPlayerPawn()
 	{
 		if (GEngine == nullptr)

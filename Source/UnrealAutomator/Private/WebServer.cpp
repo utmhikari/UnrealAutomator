@@ -12,9 +12,6 @@
 
 namespace UnrealAutomator
 {	
-	/**
-	 * Start server
-	 */
 	void FWebServer::Start(uint32 Port)
 	{
 		auto HttpServerModule = &FHttpServerModule::Get();
@@ -29,9 +26,6 @@ namespace UnrealAutomator
 		}
 	}
 
-	/**
-	 * Stop server
-	 */
 	void FWebServer::Stop()
 	{
 		UE_LOG(UALog, Log, TEXT("Stopping UnrealAutomator Server..."));
@@ -39,9 +33,6 @@ namespace UnrealAutomator
 		HttpServerModule->StopAllListeners();
 	}
 
-	/**
-	 * Bind routers with handlers
-	 */
 	void FWebServer::BindRouters(TSharedPtr<IHttpRouter> HttpRouter)
 	{
 		// UE4 uses Map<String, Handle> to store router bindings, so that bind different verbs to a same HTTP path is not supported
