@@ -6,6 +6,9 @@
 #include "Runtime/Online/HTTPServer/Public/HttpServerRequest.h"
 #include "Runtime/Json/Public/Dom/JsonObject.h"
 #include "Runtime/Online/HTTPServer/Public/HttpServerResponse.h"
+#include "Runtime/Online/HTTPServer/Public/HttpRouteHandle.h"
+#include "Runtime/Online/HTTPServer/Public/IHttpRouter.h"
+
 
 namespace UnrealAutomator
 {
@@ -17,6 +20,11 @@ namespace UnrealAutomator
 	class FWebUtil
 	{
 	public:	
+		/**
+		 * Bind a route with handler
+		 */
+		static FHttpRouteHandle BindRoute(const TSharedPtr<IHttpRouter>& HttpRouter, FString Path, const EHttpServerRequestVerbs& Verb, const FHttpResponser& HttpResponser);
+
 		/**
 		 * Create HTTP request handler (controller)
 		 * In UE4, invoke OnComplete and return false will cause crash
@@ -76,6 +84,11 @@ namespace UnrealAutomator
 		static const int32 DEFAULT_ERROR_CODE = -1;
 
 		/**
+		 * get verb string from enumerate (for logging use)
+		 */
+		static FString GetHttpVerbStringFromEnum(const EHttpServerRequestVerbs& Verb);
+
+		/**
 		 * Create json response from data, message, success status and user defined error code
 		 */
 		static TUniquePtr<FHttpServerResponse> JsonResponse(TSharedPtr<FJsonObject> Data, FString Message, bool Success, int32 Code);
@@ -84,7 +97,5 @@ namespace UnrealAutomator
 		 * Check if the body content will be parsed as UTF-8 json by header
 		 */
 		static bool IsUTF8JsonRequestContent(const FHttpServerRequest& Request);
-
-
 	};
 }

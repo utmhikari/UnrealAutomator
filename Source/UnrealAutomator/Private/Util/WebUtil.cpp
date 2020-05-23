@@ -10,6 +10,49 @@ namespace UnrealAutomator
 {
 	/** ========================== Public Methods ======================= */
 
+	FHttpRouteHandle FWebUtil::BindRoute(const TSharedPtr<IHttpRouter>& HttpRouter, FString Path, const EHttpServerRequestVerbs& Verb, const FHttpResponser& HttpResponser)
+	{
+		// VERB_NONE not supported!
+		if (HttpRouter == nullptr || Verb == EHttpServerRequestVerbs::VERB_NONE)
+		{
+			return nullptr;
+		}
+
+		FString VerbString = GetHttpVerbStringFromEnum(Verb);
+		UE_LOG(UALog, Log, TEXT("Binding router: %s\t%s"), *VerbString, *Path);
+
+		// check if HTTP path is valid
+		FHttpPath HttpPath(Path);
+		if (!HttpPath.IsValidPath())
+		{	
+			UE_LOG(UALog, Warning, TEXT("Invalid http path: %s"), *Path);
+#if WITH_EDITOR
+			if (GEngine != nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red,
+					FString::Printf(TEXT("Bind HTTP router failed! invalid path: %s"), *Path));
+			}
+#endif
+			return nullptr;
+		}
+
+		// bind router
+		auto RouteHandle = HttpRouter->BindRoute(HttpPath, Verb, FWebUtil::CreateHandler(HttpResponser));
+		if (RouteHandle == nullptr)
+		{
+			UE_LOG(UALog, Warning, TEXT("Bind failed: %s\t%s"), *VerbString, *Path);
+			return nullptr;
+		}
+#if WITH_EDITOR
+		if (GEngine != nullptr)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan,
+				FString::Printf(TEXT("Bind HTTP router: %s\t%s"), *VerbString, *Path));
+		}
+#endif
+		return RouteHandle;
+	}
+
 	FHttpRequestHandler FWebUtil::CreateHandler(const FHttpResponser& HttpResponser)
 	{
 		return [HttpResponser](const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete)
@@ -112,6 +155,27 @@ namespace UnrealAutomator
 	}
 
 	/** ========================== Private Methods ======================= */
+
+	FString FWebUtil::GetHttpVerbStringFromEnum(const EHttpServerRequestVerbs& Verb)
+	{
+		switch (Verb)
+		{
+		case EHttpServerRequestVerbs::VERB_GET:
+			return TEXT("GET");
+		case EHttpServerRequestVerbs::VERB_POST:
+			return TEXT("POST");
+		case EHttpServerRequestVerbs::VERB_PUT:
+			return TEXT("PUT");
+		case EHttpServerRequestVerbs::VERB_DELETE:
+			return TEXT("DELETE");
+		case EHttpServerRequestVerbs::VERB_PATCH:
+			return TEXT("PATCH");
+		case EHttpServerRequestVerbs::VERB_OPTIONS:
+			return TEXT("OPTIONS");
+		default:
+			return TEXT("UNKNOWN_VERB");
+		}
+	}
 
 	TUniquePtr<FHttpServerResponse> FWebUtil::JsonResponse(TSharedPtr<FJsonObject> Data, FString Message, bool Success, int32 Code)
 	{

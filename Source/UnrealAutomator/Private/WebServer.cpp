@@ -9,6 +9,8 @@
 // Handlers
 #include "Handler/BaseHandler.h"
 #include "Handler/PlayerHandler.h"
+#include "Handler/UIHandler.h"
+
 
 namespace UnrealAutomator
 {	
@@ -33,27 +35,32 @@ namespace UnrealAutomator
 		HttpServerModule->StopAllListeners();
 	}
 
-	void FWebServer::BindRouters(TSharedPtr<IHttpRouter> HttpRouter)
+	void FWebServer::BindRouters(const TSharedPtr<IHttpRouter>& HttpRouter)
 	{
 		// UE4 uses Map<String, Handle> to store router bindings, so that bind different verbs to a same HTTP path is not supported
 
 		/* ====================== Base Handler ==================== */
 
 		// health check
-		HttpRouter->BindRoute(FHttpPath(TEXT("/health")), EHttpServerRequestVerbs::VERB_GET, FWebUtil::CreateHandler(&FBaseHandler::HealthCheck));
+		FWebUtil::BindRoute(HttpRouter, TEXT("/health"), EHttpServerRequestVerbs::VERB_GET, FBaseHandler::HealthCheck);
 
 		/* ====================== Player Handler ==================== */
 
 		// get player location
-		HttpRouter->BindRoute(FHttpPath(TEXT("/player/get_location")), EHttpServerRequestVerbs::VERB_GET, FWebUtil::CreateHandler(&FPlayerHandler::GetPlayerLocation)); 
+		FWebUtil::BindRoute(HttpRouter, TEXT("/player/get_location"), EHttpServerRequestVerbs::VERB_GET, &FPlayerHandler::GetPlayerLocation);
 
 		// set player location
-		HttpRouter->BindRoute(FHttpPath(TEXT("/player/set_location")), EHttpServerRequestVerbs::VERB_PUT, FWebUtil::CreateHandler(&FPlayerHandler::SetPlayerLocation));
+		FWebUtil::BindRoute(HttpRouter, TEXT("/player/set_location"), EHttpServerRequestVerbs::VERB_PUT, &FPlayerHandler::SetPlayerLocation);
 
 		// get player rotation
-		HttpRouter->BindRoute(FHttpPath(TEXT("/player/get_rotation")), EHttpServerRequestVerbs::VERB_GET, FWebUtil::CreateHandler(&FPlayerHandler::GetPlayerRotation));
+		FWebUtil::BindRoute(HttpRouter, TEXT("/player/get_rotation"), EHttpServerRequestVerbs::VERB_GET, &FPlayerHandler::GetPlayerRotation);
 
 		// set player rotation
-		HttpRouter->BindRoute(FHttpPath(TEXT("/player/set_rotation")), EHttpServerRequestVerbs::VERB_PUT, FWebUtil::CreateHandler(&FPlayerHandler::SetPlayerRotation));
+		FWebUtil::BindRoute(HttpRouter, TEXT("/player/set_rotation"), EHttpServerRequestVerbs::VERB_PUT, &FPlayerHandler::SetPlayerRotation);
+
+		/* ====================== UI Handler ==================== */
+
+		// widget 
+		FWebUtil::BindRoute(HttpRouter, TEXT("/ui/widget_tree"), EHttpServerRequestVerbs::VERB_GET, &FUIHandler::GetWidgetTree);
 	}
 }

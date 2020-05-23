@@ -21,7 +21,7 @@ namespace UnrealAutomator
 		/**
 		 * Bind routers with handlers
 		 */
-		static void BindRouters(TSharedPtr<IHttpRouter> HttpRouter);
+		static void BindRouters(const TSharedPtr<IHttpRouter>& HttpRouter);
 	};
 
 }
