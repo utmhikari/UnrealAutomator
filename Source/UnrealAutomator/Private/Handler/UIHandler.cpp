@@ -37,24 +37,27 @@ namespace UnrealAutomator
 		}
 		if (!Parent->HasField(TEXT("children")))
 		{
-			Parent->SetArrayField(TEXT("children"), TArray<TSharedPtr<FJsonValue>>());
+			Parent->SetObjectField(TEXT("children"), MakeShareable(new FJsonObject()));
 		}
-		auto Children = Parent->GetArrayField(TEXT("children"));
-
+		uint32 WidgetID = Widget->GetUniqueID();
 		TSharedPtr<FJsonObject> WidgetJson = MakeShareable(new FJsonObject());
-		
+
 		// fill info
+		WidgetJson->SetNumberField(TEXT("id"), WidgetID);
 		WidgetJson->SetStringField(TEXT("name"), Widget->GetName());
 		WidgetJson->SetStringField(TEXT("class"), Widget->GetClass()->GetName());
 		WidgetJson->SetStringField(TEXT("category"), Widget->GetCategoryName());
 		WidgetJson->SetStringField(TEXT("label"), Widget->GetLabelText().ToString());
+		WidgetJson->SetStringField(TEXT("displayLabel"), Widget->GetDisplayLabel());
 		WidgetJson->SetStringField(TEXT("labelWithMeta"), Widget->GetLabelTextWithMetadata().ToString());
+		WidgetJson->SetStringField(TEXT("meta"), Widget->GetLabelMetadata());
 		WidgetJson->SetBoolField(TEXT("visible"), Widget->IsVisible());
 		WidgetJson->SetBoolField(TEXT("enabled"), Widget->GetIsEnabled());
 
 		// traverse children of widget if enabled and visible
 		if (Widget->IsVisible() && Widget->GetIsEnabled())
 		{
+			UE_LOG(UALog, Log, TEXT("Detected UWidget: %s (%s)"), *Widget->GetName(), *Widget->GetClass()->GetName());
 			if (INamedSlotInterface* NamedSlotHost = Cast<INamedSlotInterface>(Widget))
 			{
 				TArray<FName> SlotNames;
@@ -82,10 +85,12 @@ namespace UnrealAutomator
 		}
 		else
 		{
-			UE_LOG(UALog, Warning, TEXT("Detected disabled or invisible UWidget: %s"), *Widget->GetName());
+			UE_LOG(UALog, Warning, TEXT("Detected disabled or invisible UWidget: %s (%s)"), *Widget->GetName(), *Widget->GetClass()->GetName());
 		}
-		
-		TSharedPtr<FJsonValue> WidgetJsonValue = MakeShareable(new  FJsonValueObject(WidgetJson));
-		Children.Add(MoveTemp(WidgetJsonValue));
+
+		Parent->GetObjectField(TEXT("children"))
+			.ToSharedRef()
+			.Get()
+			.SetObjectField(FString::FromInt(WidgetID), WidgetJson);
 	}
 }
