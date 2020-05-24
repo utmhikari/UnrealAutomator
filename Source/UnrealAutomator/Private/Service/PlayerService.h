@@ -13,5 +13,10 @@ namespace UnrealAutomator
 		 * Get player pawn
 		 */
 		static APawn* GetPlayerPawn();
+
+		/**
+		 * Get player controller
+		 */
+		static APlayerController* GetPlayerController();
 	};
 }

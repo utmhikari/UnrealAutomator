@@ -2,6 +2,8 @@
 #include "Log.h"
 #include "Engine.h"
 
+#include "Service/SceneService.h"
+
 
 namespace UnrealAutomator
 {
@@ -9,34 +11,40 @@ namespace UnrealAutomator
 
 	APawn* FPlayerService::GetPlayerPawn()
 	{
-		if (GEngine == nullptr)
+		auto PlayerController = GetPlayerController();
+		if (PlayerController == nullptr)
 		{
-			UE_LOG(UALog, Warning, TEXT("Cannot find GEngine!"));
+#if WITH_EDITOR
+			if (GEngine != nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Failed to get player controller!"));
+			}
+#endif
 			return nullptr;
 		}
-		auto WorldContexts = GEngine->GetWorldContexts();
-		if (WorldContexts.Num() == 0)
-		{
-			UE_LOG(UALog, Warning, TEXT("No world context!"));
-			return nullptr;
-		}
-		auto World = WorldContexts[0].World();
-		if (World == nullptr)
-		{
-			UE_LOG(UALog, Warning, TEXT("No current world!"));
-			return nullptr;
-		}
-		auto FirstPlayerController = World->GetFirstPlayerController();
-		if (FirstPlayerController == nullptr)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Failed to get first player controller!"));
-			return nullptr;
-		}
-		auto PlayerPawn = FirstPlayerController->GetPawn();
+		auto PlayerPawn = PlayerController->GetPawn();
 		if (PlayerPawn == nullptr)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Player is not a pawn or not under control!"));
+			UE_LOG(UALog, Warning, TEXT("Player controller is not binding a pawn!"));
+#if WITH_EDITOR
+			if (GEngine != nullptr)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Player is not a pawn or not under control!"));
+			}
+#endif
 		}
 		return PlayerPawn;
+	}
+
+	APlayerController* FPlayerService::GetPlayerController()
+	{
+		TArray<APlayerController*> PlayerControllers;
+		GEngine->GetAllLocalPlayerControllers(PlayerControllers);
+		if (PlayerControllers.Num() == 0)
+		{
+			UE_LOG(UALog, Warning, TEXT("No player controller!"));
+			return nullptr;
+		}
+		return PlayerControllers[0];
 	}
 }

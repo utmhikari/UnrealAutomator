@@ -10,6 +10,7 @@
 #include "Handler/BaseHandler.h"
 #include "Handler/PlayerHandler.h"
 #include "Handler/UIHandler.h"
+#include "Handler/CommandHandler.h"
 
 
 namespace UnrealAutomator
@@ -60,7 +61,15 @@ namespace UnrealAutomator
 
 		/* ====================== UI Handler ==================== */
 
-		// widget 
+		// get widget tree
 		FWebUtil::BindRoute(HttpRouter, TEXT("/ui/widget_tree"), EHttpServerRequestVerbs::VERB_GET, &FUIHandler::GetWidgetTree);
+
+		/* ====================== Command Handler ==================== */
+
+		// execute unreal command
+		FWebUtil::BindRoute(HttpRouter, TEXT("/command/unreal"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteUECommand);
+
+		// execute gm command
+		FWebUtil::BindRoute(HttpRouter, TEXT("/command/gm"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteGMCommand);
 	}
 }
