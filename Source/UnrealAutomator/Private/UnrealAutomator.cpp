@@ -2,6 +2,9 @@
 
 #include "UnrealAutomator.h"
 #include "WebServer.h"
+#include "Log.h"
+#include "Engine.h"
+#include "HTTPServer\Public\HttpServerModule.h"
 
 
 #define LOCTEXT_NAMESPACE "FUnrealAutomatorModule"
@@ -9,10 +12,11 @@
 void FUnrealAutomatorModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	UnrealAutomator::FWebServer::Stop();
+	Port = DEFAULT_PORT;
+
 	if (!GIsEditor)
 	{
-		Port = DEFAULT_PORT;
+		// debug in standalone games
 		UnrealAutomator::FWebServer::Start(Port);
 	}
 }

@@ -6,6 +6,7 @@
 #include "Modules/ModuleManager.h"
 
 
+
 class FUnrealAutomatorModule : public IModuleInterface
 {
 public:
@@ -16,5 +17,5 @@ public:
 	uint32 Port;
 
 private:
-	static const uint32 DEFAULT_PORT = 26016;
+	static const uint32 DEFAULT_PORT = 17777;
 };

@@ -10,19 +10,14 @@ namespace UnrealAutomator
 	{
 	public:
 		/**
-		 * get player location
+		 * get player info
 		 */
-		static TUniquePtr<FHttpServerResponse> GetPlayerLocation(const FHttpServerRequest& Request);
+		static TUniquePtr<FHttpServerResponse> GetPlayerInfo(const FHttpServerRequest& Request);
 
 		/**
 		 * set player location
 		 */
 		static TUniquePtr<FHttpServerResponse> SetPlayerLocation(const FHttpServerRequest& Request);
-
-		/**
-		 * get player rotation
-		 */
-		static TUniquePtr<FHttpServerResponse> GetPlayerRotation(const FHttpServerRequest& Request);
 
 		/**
 		 * set player rotation

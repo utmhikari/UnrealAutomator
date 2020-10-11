@@ -11,6 +11,7 @@
 #include "Handler/PlayerHandler.h"
 #include "Handler/UIHandler.h"
 #include "Handler/CommandHandler.h"
+#include "Handler/SceneHandler.h"
 
 
 namespace UnrealAutomator
@@ -18,14 +19,14 @@ namespace UnrealAutomator
 	void FWebServer::Start(uint32 Port)
 	{
 		auto HttpServerModule = &FHttpServerModule::Get();
-		UE_LOG(UALog, Log, TEXT("Starting UnrealAutomator Server..."));
+		UE_LOG(UALog, Log, TEXT("Starting UnrealAutomator server at port %d..."), Port);
 		TSharedPtr<IHttpRouter> HttpRouter = HttpServerModule->GetHttpRouter(Port);
 		BindRouters(HttpRouter);
 		// Start Listeners
 		HttpServerModule->StartAllListeners();
 		if (GEngine != nullptr)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, TEXT("UnrealAutomator Server Started"));
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("UnrealAutomator server started at port %d"), Port));
 		}
 	}
 
@@ -38,7 +39,8 @@ namespace UnrealAutomator
 
 	void FWebServer::BindRouters(const TSharedPtr<IHttpRouter>& HttpRouter)
 	{
-		// UE4 uses Map<String, Handle> to store router bindings, so that bind different verbs to a same HTTP path is not supported
+		// UE4 uses Map<String, Handle> to store router bindings
+		// bind different verbs to a same HTTP path is not supported
 
 		/* ====================== Base Handler ==================== */
 
@@ -48,28 +50,33 @@ namespace UnrealAutomator
 		/* ====================== Player Handler ==================== */
 
 		// get player location
-		FWebUtil::BindRoute(HttpRouter, TEXT("/player/get_location"), EHttpServerRequestVerbs::VERB_GET, &FPlayerHandler::GetPlayerLocation);
+		FWebUtil::BindRoute(HttpRouter, TEXT("/v1/player/info"), EHttpServerRequestVerbs::VERB_GET, &FPlayerHandler::GetPlayerInfo);
 
 		// set player location
-		FWebUtil::BindRoute(HttpRouter, TEXT("/player/set_location"), EHttpServerRequestVerbs::VERB_PUT, &FPlayerHandler::SetPlayerLocation);
-
-		// get player rotation
-		FWebUtil::BindRoute(HttpRouter, TEXT("/player/get_rotation"), EHttpServerRequestVerbs::VERB_GET, &FPlayerHandler::GetPlayerRotation);
+		FWebUtil::BindRoute(HttpRouter, TEXT("/v1/player/location"), EHttpServerRequestVerbs::VERB_PUT, &FPlayerHandler::SetPlayerLocation);
 
 		// set player rotation
-		FWebUtil::BindRoute(HttpRouter, TEXT("/player/set_rotation"), EHttpServerRequestVerbs::VERB_PUT, &FPlayerHandler::SetPlayerRotation);
+		FWebUtil::BindRoute(HttpRouter, TEXT("/v1/player/rotation"), EHttpServerRequestVerbs::VERB_PUT, &FPlayerHandler::SetPlayerRotation);
 
 		/* ====================== UI Handler ==================== */
 
+		// screenshot
+		FWebUtil::BindRoute(HttpRouter, TEXT("/v1/ui/screenshot"), EHttpServerRequestVerbs::VERB_GET, &FUIHandler::Screenshot);
+
 		// get widget tree
-		FWebUtil::BindRoute(HttpRouter, TEXT("/ui/widget_tree"), EHttpServerRequestVerbs::VERB_GET, &FUIHandler::GetWidgetTree);
+		FWebUtil::BindRoute(HttpRouter, TEXT("/v1/ui/tree"), EHttpServerRequestVerbs::VERB_GET, &FUIHandler::GetWidgetTree);
 
 		/* ====================== Command Handler ==================== */
 
 		// execute unreal command
-		FWebUtil::BindRoute(HttpRouter, TEXT("/command/unreal"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteUECommand);
+		FWebUtil::BindRoute(HttpRouter, TEXT("/v1/command/unreal"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteUECommand);
 
 		// execute gm command
-		FWebUtil::BindRoute(HttpRouter, TEXT("/command/gm"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteGMCommand);
+		FWebUtil::BindRoute(HttpRouter, TEXT("/v1/command/gm"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteGMCommand);
+
+		/* ====================== Scene Handler ==================== */
+
+		// get current map info
+		FWebUtil::BindRoute(HttpRouter, TEXT("/v1/scene/map/current"), EHttpServerRequestVerbs::VERB_GET, &FSceneHandler::GetCurrentMapInfo);
 	}
 }
