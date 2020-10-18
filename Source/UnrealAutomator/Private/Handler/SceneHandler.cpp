@@ -4,19 +4,17 @@
 #include "Engine.h"
 #include "Log.h"
 
-namespace UnrealAutomator
+
+TUniquePtr<FHttpServerResponse> FSceneHandler::GetCurrentMapInfo(const FHttpServerRequest& Request)
 {
-	TUniquePtr<FHttpServerResponse> FSceneHandler::GetCurrentMapInfo(const FHttpServerRequest& Request)
+	UE_LOG(UALog, Log, TEXT("Get current map info..."));
+	UWorld* World = FSceneService::GetCurrentWorld();
+	if (World == nullptr)
 	{
-		UE_LOG(UALog, Log, TEXT("Get current map info..."));
-		UWorld* World = FSceneService::GetCurrentWorld();
-		if (World == nullptr)
-		{
-			return FWebUtil::ErrorResponse("Cannot get UWorld instance!");
-		}
-		FString MapName = World->GetMapName();
-		TSharedPtr<FJsonObject> Body = MakeShareable(new FJsonObject());
-		Body->SetStringField(TEXT("mapName"), MapName);
-		return FWebUtil::SuccessResponse(Body);
+		return FWebUtil::ErrorResponse("Cannot get UWorld instance!");
 	}
+	FString MapName = World->GetMapName();
+	TSharedPtr<FJsonObject> Body = MakeShareable(new FJsonObject());
+	Body->SetStringField(TEXT("name"), MapName);
+	return FWebUtil::SuccessResponse(Body);
 }

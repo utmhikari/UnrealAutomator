@@ -17,7 +17,7 @@ void FUnrealAutomatorModule::StartupModule()
 	if (!GIsEditor)
 	{
 		// debug in standalone games
-		UnrealAutomator::FWebServer::Start(Port);
+		FWebServer::Start(Port);
 	}
 }
 
@@ -25,7 +25,7 @@ void FUnrealAutomatorModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that supporWt dynamic reloading,
 	// we call this function before unloading the module.
-	UnrealAutomator::FWebServer::Stop();
+	FWebServer::Stop();
 }
 
 #undef LOCTEXT_NAMESPACE

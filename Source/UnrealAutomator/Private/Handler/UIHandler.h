@@ -6,19 +6,22 @@
 #include "Runtime/Online/HTTPServer/Public/HttpResultCallback.h"
 
 
-namespace UnrealAutomator
-{
-	class FUIHandler
-	{
-	public:
-		/**
-		 * Get widget tree
-		 */
-		static TUniquePtr<FHttpServerResponse> GetWidgetTree(const FHttpServerRequest& Request);
 
-		/**
-		 * Screenshot
-		 */
-		static TUniquePtr<FHttpServerResponse> Screenshot(const FHttpServerRequest& Request);
-	};
-}
+class FUIHandler
+{
+public:
+	/**
+	 * Get widget tree
+	 */
+	static TUniquePtr<FHttpServerResponse> GetWidgetTree(const FHttpServerRequest& Request);
+
+	/**
+	 * Get widget
+	 */
+	static TUniquePtr<FHttpServerResponse> GetWidget(const FHttpServerRequest& Request);
+
+	/**
+	 * Call widget callback
+	 */
+	static TUniquePtr<FHttpServerResponse> CallWidgetMethod(const FHttpServerRequest& Request);
+};

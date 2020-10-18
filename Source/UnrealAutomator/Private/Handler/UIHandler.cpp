@@ -2,34 +2,45 @@
 #include "Service/UIService.h"
 #include "Util/WebUtil.h"
 #include "Util/CommonUtil.h"
+#include "Model/UIModel.h"
+#include "Engine.h"
 #include "Log.h"
 
-namespace UnrealAutomator
+
+TUniquePtr<FHttpServerResponse> FUIHandler::GetWidgetTree(const FHttpServerRequest& Request)
 {
-	TUniquePtr<FHttpServerResponse> FUIHandler::GetWidgetTree(const FHttpServerRequest& Request)
+	UE_LOG(UALog, Log, TEXT("Get current UI widget tree..."));
+	auto WidgetTree = FUIService::GetWidgetTreeJson();
+	return FWebUtil::SuccessResponse(WidgetTree);
+}
+
+TUniquePtr<FHttpServerResponse> FUIHandler::GetWidget(const FHttpServerRequest& Request)
+{
+	FUIWidgetQuery UIWidgetQuery = FUIWidgetQuery();
+	if (!FWebUtil::GetRequestUStructBody(Request, &UIWidgetQuery))
 	{
-		UE_LOG(UALog, Log, TEXT("Get current UI widget tree..."));
-		auto WidgetTree = FUIService::GetWidgetTreeJson();
-		return FWebUtil::SuccessResponse(WidgetTree);
+		return FWebUtil::ErrorResponse(TEXT("Invalid widget query!"));
 	}
 
-	TUniquePtr<FHttpServerResponse> FUIHandler::Screenshot(const FHttpServerRequest& Request)
+	// print on screen to view the query
+	if (GEngine != nullptr)
 	{
-		auto QueryParams = Request.QueryParams;
-		FString* ScreenShotName = QueryParams.Find(TEXT("name"));
-		bool Success;
-		if (ScreenShotName == nullptr)
-		{
-			Success = FUIService::Screenshot();
-		}
-		else
-		{
-			Success = FUIService::Screenshot(*ScreenShotName);
-		}
-		if (!Success)
-		{
-			return FWebUtil::ErrorResponse("Screenshot failed!");
-		}
-		return FWebUtil::SuccessResponse(TEXT("Screenshot successfully!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Turquoise, FString::Printf(TEXT("Query widget with id: %d, name: %s, text: %s"),
+			UIWidgetQuery.ID,
+			*UIWidgetQuery.Name,
+			*UIWidgetQuery.Text));
 	}
+
+	return FWebUtil::SuccessResponse(TEXT("Get widget successfully!"));
 }
+
+
+TUniquePtr<FHttpServerResponse> FUIHandler::CallWidgetMethod(const FHttpServerRequest& Request)
+{
+	// TODO: implementation
+	TSharedPtr<FJsonObject> Body = FWebUtil::GetRequestJsonBody(Request);
+	return FWebUtil::SuccessResponse(TEXT("Call widget method successfully!"));
+}	
+
+
+
