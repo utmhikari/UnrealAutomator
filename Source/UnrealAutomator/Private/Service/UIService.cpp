@@ -15,31 +15,89 @@ TSharedPtr<FJsonObject> FUIService::GetWidgetTreeJson()
 	FViewportService::Reset();
 
 	TSharedPtr<FJsonObject> WidgetRoot = MakeShareable(new FJsonObject());
+
 	UE_LOG(UALog, Verbose, TEXT("DFS WidgetTree..."));
 	for (TObjectIterator<UUserWidget> Itr; Itr; ++Itr)
 	{
 		UUserWidget* UserWidget = *Itr;
 		if (UserWidget == nullptr || UserWidget->WidgetTree == nullptr || !UserWidget->IsVisible())
 		{
-			UE_LOG(UALog, Verbose, TEXT("UUserWidget iterator got a null or invisible UUserWidget!"))
-				continue;
+			UE_LOG(UALog, Verbose, TEXT("UUserWidget iterator got a null or invisible UUserWidget!"));
+			continue;
 		}
 		TraverseWidget(UserWidget->WidgetTree->RootWidget, WidgetRoot);
 	}
 	return WidgetRoot;
 }
 
-TSharedPtr<FJsonObject> FUIService::GetWidgetJson()
+
+UWidget* FUIService::FindWidget(FUIWidgetQuery Query)
 {
-	// TODO: implementation
+	for (TObjectIterator<UUserWidget> Itr; Itr; ++Itr)
+	{
+		UUserWidget* UserWidget = *Itr;
+		if (UserWidget == nullptr || UserWidget->WidgetTree == nullptr || !UserWidget->IsVisible())
+		{
+			continue;
+		}
+		UWidget* Result = FindWidget(UserWidget->WidgetTree->RootWidget, Query);
+		if (Result != nullptr)
+		{
+			return Result;
+		}
+	}
 	return nullptr;
 }
 
-bool FUIService::CallWidgetMethod()
+
+UWidget* FUIService::FindWidget(UWidget* Root, FUIWidgetQuery Query)
 {
-	// TODO: implementation
-	return true;
+	if (Root == nullptr)
+	{
+		return nullptr;
+	}
+
+	if (Query.IsMatch(Root))
+	{
+		return Root;
+	}
+
+	if (INamedSlotInterface* NamedSlotHost = Cast<INamedSlotInterface>(Root))
+	{
+		TArray<FName> SlotNames;
+		NamedSlotHost->GetSlotNames(SlotNames);
+		for (FName SlotName : SlotNames)
+		{
+			if (UWidget* SlotContent = NamedSlotHost->GetContentForSlot(SlotName))
+			{
+				UWidget* Result = FindWidget(SlotContent, Query);
+				if (Result != nullptr)
+				{
+					return Result;
+				}
+			}
+		}
+	}
+
+	if (UPanelWidget* PanelParent = Cast<UPanelWidget>(Root))
+	{
+		int32 NumChildren = PanelParent->GetChildrenCount();
+		for (int32 ChildIndex = 0; ChildIndex < NumChildren; ChildIndex++)
+		{
+			if (UWidget* ChildWidget = PanelParent->GetChildAt(ChildIndex))
+			{
+				UWidget* Result = FindWidget(ChildWidget, Query);
+				if (Result != nullptr)
+				{
+					return Result;
+				}
+			}
+		}
+	}
+
+	return nullptr;
 }
+
 
 void FUIService::TraverseWidget(UWidget* Widget, const TSharedPtr<FJsonObject>& Parent)
 {

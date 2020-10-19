@@ -69,7 +69,7 @@ void FWebServer::BindRouters(const TSharedPtr<IHttpRouter>& HttpRouter)
 	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/ui/widget"), EHttpServerRequestVerbs::VERB_POST, &FUIHandler::GetWidget);
 
 	// call widget callback
-	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/ui/callback"), EHttpServerRequestVerbs::VERB_POST, &FUIHandler::CallWidgetMethod);
+	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/ui/event"), EHttpServerRequestVerbs::VERB_POST, &FUIHandler::InvokeWidgetEvent);
 
 
 	/* ====================== Command Handler ==================== */

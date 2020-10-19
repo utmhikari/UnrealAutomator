@@ -23,5 +23,10 @@ public:
 	/**
 	 * Call widget callback
 	 */
-	static TUniquePtr<FHttpServerResponse> CallWidgetMethod(const FHttpServerRequest& Request);
+	static TUniquePtr<FHttpServerResponse> InvokeWidgetEvent(const FHttpServerRequest& Request);
+
+	/**
+	 * Set widget text
+	 */
+	static TUniquePtr<FHttpServerResponse> SetWidgetText(const FHttpServerRequest& Request);
 };

@@ -72,11 +72,11 @@ public:
 
 		if (StructBody == nullptr)
 		{
-			UE_LOG(UALog, Warning, TEXT("cast to ustruct failed! struct ptr is still null!"));
+			UE_LOG(UALog, Warning, TEXT("cast to USTRUCT failed! struct ptr is still null!"));
 			return false;
 		}
 
-		UE_LOG(UALog, Log, TEXT("convert to UStruct successfully!"));
+		UE_LOG(UALog, Log, TEXT("convert to USTRUCT successfully!"));
 
 		return true;
 	}

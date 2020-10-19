@@ -4,6 +4,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Service/ViewportService.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/Button.h"
 #include "UMG/Public/Components/TextBlock.h"
 #include "UMG/Public/Components/RichTextBlock.h"
 #include "UMG/Public/Components/EditableText.h"
@@ -186,5 +187,52 @@ bool FWidgetService::SetWidgetText(UWidget* Widget, FString Text)
 		MultiLineEditableTextBox->SetText(FText::FromString(Text));
 		return true;
 	}
+	return false;
+}
+
+bool FWidgetService::InvokeWidgetEvent(UWidget* Widget, FString EventName)
+{
+	if (Widget == nullptr)
+	{
+		UE_LOG(UALog, Log, TEXT("Failed to invoke widget event %s! Widget is nullptr!"), *EventName);
+		return false;
+	}
+
+	// currently supports button
+	UButton* Button = Cast<UButton>(Widget);
+	if (Button != nullptr)
+	{
+		if (EventName.Equals(TEXT("OnClicked")))
+		{
+			Button->OnClicked.Broadcast();
+			return true;
+		}
+
+		if (EventName.Equals(TEXT("OnPressed")))
+		{
+			Button->OnPressed.Broadcast();
+			return true;
+		}
+
+		if (EventName.Equals(TEXT("OnReleased")))
+		{
+			Button->OnReleased.Broadcast();
+			return true;
+		}
+
+		if (EventName.Equals(TEXT("OnHovered")))
+		{
+			Button->OnHovered.Broadcast();
+			return true;
+		}
+
+		if (EventName.Equals(TEXT("OnUnhovered")))
+		{
+			Button->OnUnhovered.Broadcast();
+			return true;
+		}
+	}
+	
+	UE_LOG(UALog, Log, TEXT("No widget type to support event %s!"), *EventName);
 	return false;
 }

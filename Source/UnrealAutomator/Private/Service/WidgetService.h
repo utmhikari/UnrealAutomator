@@ -36,4 +36,9 @@ public:
 	 */
 	static bool SetWidgetText(UWidget* Widget, FString Text);
 
+	/**
+	 * Invoke widget event
+	 */
+	static bool InvokeWidgetEvent(UWidget* Widget, FString Event);
+
 };
