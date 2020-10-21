@@ -15,7 +15,7 @@ bool FBaseService::Screenshot(FString Name, bool bIsTimeSuffixEnabled)
 		Filename = Name;
 	}
 
-	UE_LOG(UALog, Log, TEXT("Screenshot to file %s"), *Filename);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Screenshot to file %s"), *Filename);
 
 	FString Filepath = FString::Printf(TEXT("%sScreenshots/%s/%s"), *FPaths::ProjectSavedDir(), *FString(FPlatformProperties::IniPlatformName()), *Filename);
 

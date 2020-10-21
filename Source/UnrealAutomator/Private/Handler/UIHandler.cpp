@@ -10,7 +10,7 @@
 
 TUniquePtr<FHttpServerResponse> FUIHandler::GetWidgetTree(const FHttpServerRequest& Request)
 {
-	UE_LOG(UALog, Log, TEXT("Get current UI widget tree..."));
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Get current UI widget tree..."));
 	auto WidgetTree = FUIService::GetWidgetTreeJson();
 	return FWebUtil::SuccessResponse(WidgetTree);
 }
@@ -23,19 +23,17 @@ TUniquePtr<FHttpServerResponse> FUIHandler::GetWidget(const FHttpServerRequest& 
 		return FWebUtil::ErrorResponse(TEXT("Invalid widget query!"));
 	}
 
-	// print on screen to view the query
+	FString UIWidgetQueryStr = UIWidgetQuery.ToString();
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Query widget %s"), *UIWidgetQueryStr)
 	if (GEngine != nullptr)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Turquoise, FString::Printf(TEXT("Query widget with id: %d, name: %s, text: %s"),
-			UIWidgetQuery.ID,
-			*UIWidgetQuery.Name,
-			*UIWidgetQuery.Text));
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Turquoise, FString::Printf(TEXT("Query widget %s"), *UIWidgetQueryStr));
 	}
 
 	UWidget* Widget = FUIService::FindWidget(UIWidgetQuery);
 	if (Widget == nullptr)
 	{
-		UE_LOG(UALog, Warning, TEXT("Failed to get widget json! Cannot find widget!"));
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("Failed to get widget json! Cannot find widget!"));
 		return FWebUtil::ErrorResponse(TEXT("Cannot find widget!"));
 	}
 
@@ -55,7 +53,7 @@ TUniquePtr<FHttpServerResponse> FUIHandler::InvokeWidgetEvent(const FHttpServerR
 	const FString* EventName = Request.QueryParams.Find(TEXT("name"));
 	if (EventName == nullptr)
 	{
-		FWebUtil::ErrorResponse(TEXT("Cannot get event to invoke!"));
+		return FWebUtil::ErrorResponse(TEXT("Cannot get event to invoke!"));
 	}
 
 	FUIWidgetQuery UIWidgetQuery = FUIWidgetQuery();
@@ -67,7 +65,7 @@ TUniquePtr<FHttpServerResponse> FUIHandler::InvokeWidgetEvent(const FHttpServerR
 	UWidget* Widget = FUIService::FindWidget(UIWidgetQuery);
 	if (Widget == nullptr)
 	{
-		UE_LOG(UALog, Warning, TEXT("Failed to invoke widget event! Cannot find widget!"));
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("Failed to invoke widget event! Cannot find widget!"));
 		return FWebUtil::ErrorResponse(TEXT("Cannot find widget!"));
 	}
 
@@ -85,7 +83,7 @@ TUniquePtr<FHttpServerResponse> FUIHandler::SetWidgetText(const FHttpServerReque
 	const FString* Text = Request.QueryParams.Find(TEXT("text"));
 	if (Text == nullptr)
 	{
-		FWebUtil::ErrorResponse(TEXT("Cannot get text to set!"));
+		return FWebUtil::ErrorResponse(TEXT("Cannot get text to set!"));
 	}
 
 	FUIWidgetQuery UIWidgetQuery = FUIWidgetQuery();
@@ -97,7 +95,7 @@ TUniquePtr<FHttpServerResponse> FUIHandler::SetWidgetText(const FHttpServerReque
 	UWidget* Widget = FUIService::FindWidget(UIWidgetQuery);
 	if (Widget == nullptr)
 	{
-		UE_LOG(UALog, Warning, TEXT("Failed to set widget text! Cannot find widget!"));
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("Failed to set widget text! Cannot find widget!"));
 		return FWebUtil::ErrorResponse(TEXT("Cannot find widget!"));
 	}
 

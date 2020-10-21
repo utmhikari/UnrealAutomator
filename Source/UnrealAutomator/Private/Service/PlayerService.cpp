@@ -23,7 +23,7 @@ APawn* FPlayerService::GetPlayerPawn()
 	auto PlayerPawn = PlayerController->GetPawn();
 	if (PlayerPawn == nullptr)
 	{
-		UE_LOG(UALog, Warning, TEXT("Player controller is not binding a pawn!"));
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("Player controller is not binding a pawn!"));
 #if WITH_EDITOR
 		if (GEngine != nullptr)
 		{
@@ -39,7 +39,7 @@ APlayerController* FPlayerService::GetPlayerController()
 	auto World = FSceneService::GetCurrentWorld();
 	if (World == nullptr)
 	{
-		UE_LOG(UALog, Warning, TEXT("No world, no player controller!"));
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("No world, no player controller!"));
 		return nullptr;
 	}
 

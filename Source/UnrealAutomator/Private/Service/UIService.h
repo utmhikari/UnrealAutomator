@@ -28,7 +28,7 @@ private:
 	/**
 	 * Find first specific widget that matches widget query
 	 */
-	static UWidget* FindWidget(UWidget* Root, FUIWidgetQuery Query);
+	static UWidget* FindWidget(UWidget* Root, FUIWidgetQuery Query, UWidget* Parent);
 
 	/**
 	 * Traverse widget and fill the json parent

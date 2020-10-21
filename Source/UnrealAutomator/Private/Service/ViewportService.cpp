@@ -56,7 +56,7 @@ bool FViewportService::InitDefault()
 {
 	if (!IsViewportEnabledInEngine())
 	{
-		UE_LOG(UALog, Error, TEXT("Failed to init default viewport scale!!!"));
+		UE_LOG(LogUnrealAutomator, Error, TEXT("Failed to init default viewport scale!!!"));
 		return false;
 	}
 	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
@@ -65,21 +65,21 @@ bool FViewportService::InitDefault()
 
 	if (Setting == nullptr)
 	{
-		UE_LOG(UALog, Error, TEXT("Failed to load UserInterface settings!"));
+		UE_LOG(LogUnrealAutomator, Error, TEXT("Failed to load UserInterface settings!"));
 		return false;
 	}
 
 	ViewportScale = Setting->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
 
 	if (ViewportScale <= 0.0) {
-		UE_LOG(UALog, Error, TEXT("ViewportScale = %f,invaild"), ViewportScale);
+		UE_LOG(LogUnrealAutomator, Error, TEXT("ViewportScale = %f,invaild"), ViewportScale);
 		return false;
 	}
 	WidthScale = ViewportScale;
 	HeightScale = ViewportScale;
 	SurfaceViewWidth = GSystemResolution.ResX / ViewportScale;
 	SurfaceViewHeight = GSystemResolution.ResY / ViewportScale;
-	UE_LOG(UALog, Log, TEXT("Screen(GSystemResolution) with ViewportScale: %f, SurfaceViewWidth: %f, SurfaceViewHeight: %f"), ViewportScale, SurfaceViewWidth, SurfaceViewHeight);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Screen(GSystemResolution) with ViewportScale: %f, SurfaceViewWidth: %f, SurfaceViewHeight: %f"), ViewportScale, SurfaceViewWidth, SurfaceViewHeight);
 	return true;
 }
 
@@ -90,14 +90,14 @@ bool FViewportService::InitAndroid()
 	// check if viewport is enabled
 	if (!IsViewportEnabledInEngine())
 	{
-		UE_LOG(UALog, Error, TEXT("Failed to init Android viewport scale!!!"));
+		UE_LOG(LogUnrealAutomator, Error, TEXT("Failed to init Android viewport scale!!!"));
 		return false;
 	}
 
 	// cache viewport size
 	auto Viewport = GEngine->GameViewport->Viewport;
 	const FVector2D ViewportSize = FVector2D(Viewport->GetSizeXY());
-	UE_LOG(UALog, Log, TEXT("Android viewport size X: %f, Y: %f..."), ViewportSize.X, ViewportSize.Y);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Android viewport size X: %f, Y: %f..."), ViewportSize.X, ViewportSize.Y);
 
 	// calculate surface size
 	FAndroidWindow::CalculateSurfaceSize(SurfaceViewWidth, SurfaceViewHeight);
@@ -106,17 +106,17 @@ bool FViewportService::InitAndroid()
 	// TODO: solve problem of black border
 	if (SurfaceViewWidth == 0)
 	{
-		UE_LOG(UALog, Error, TEXT("Android SurfaceWidth error = 0.0 "));
+		UE_LOG(LogUnrealAutomator, Error, TEXT("Android SurfaceWidth error = 0.0 "));
 		SurfaceViewWidth = ViewportSize.X;
 	}
 	if (SurfaceViewHeight == 0)
 	{
-		UE_LOG(UALog, Error, TEXT("Android SurfaceViewHeight error = 0.0 "));
+		UE_LOG(LogUnrealAutomator, Error, TEXT("Android SurfaceViewHeight error = 0.0 "));
 		SurfaceViewHeight = ViewportSize.Y;
 	}
 	WidthScale = ViewportSize.X / SurfaceViewWidth;
 	HeightScale = ViewportSize.Y / SurfaceViewHeight;
-	UE_LOG(UALog, Log, TEXT("Android Surfaceview WidthScale: %f, HeightScale: %f, SurfaceViewWidth: %d, SurfaceViewHeight: %d"), WidthScale, HeightScale, SurfaceViewWidth, SurfaceViewHeight);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Android Surfaceview WidthScale: %f, HeightScale: %f, SurfaceViewWidth: %d, SurfaceViewHeight: %d"), WidthScale, HeightScale, SurfaceViewWidth, SurfaceViewHeight);
 	return true;
 #else
 	return false;
@@ -128,7 +128,7 @@ bool FViewportService::IsViewportEnabledInEngine()
 {
 	if (GEngine == nullptr || GEngine->GameViewport == nullptr || GEngine->GameViewport->Viewport == nullptr)
 	{
-		UE_LOG(UALog, Error, TEXT("No GEngine Viewport!!!"));
+		UE_LOG(LogUnrealAutomator, Error, TEXT("No GEngine Viewport!!!"));
 		return false;
 	}
 	return true;

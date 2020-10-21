@@ -18,7 +18,7 @@
 void FWebServer::Start(uint32 Port)
 {
 	auto HttpServerModule = &FHttpServerModule::Get();
-	UE_LOG(UALog, Log, TEXT("Starting UnrealAutomator server at port %d..."), Port);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Starting UnrealAutomator server at port %d..."), Port);
 	TSharedPtr<IHttpRouter> HttpRouter = HttpServerModule->GetHttpRouter(Port);
 	BindRouters(HttpRouter);
 	// Start Listeners
@@ -31,7 +31,7 @@ void FWebServer::Start(uint32 Port)
 
 void FWebServer::Stop()
 {
-	UE_LOG(UALog, Log, TEXT("Stopping UnrealAutomator Server..."));
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Stopping UnrealAutomator Server..."));
 	auto HttpServerModule = &FHttpServerModule::Get();
 	HttpServerModule->StopAllListeners();
 }

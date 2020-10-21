@@ -2,7 +2,6 @@
 #include "Util/CommonUtil.h"
 #include "Log.h"
 #include "Engine.h"
-#include "Kismet/KismetStringLibrary.h"
 
 
 /** ========================== Public Methods ======================= */
@@ -21,7 +20,7 @@ FHttpRouteHandle FWebUtil::BindRoute(const TSharedPtr<IHttpRouter>& HttpRouter, 
 	FHttpPath HttpPath(Path);
 	if (!HttpPath.IsValidPath())
 	{	
-		UE_LOG(UALog, Warning, TEXT("Failed to bind HTTP router %s %s! Invalid path!"), *VerbString, *Path);
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("Failed to bind HTTP router %s %s! Invalid path!"), *VerbString, *Path);
 		if (GEngine != nullptr)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red,
@@ -35,7 +34,7 @@ FHttpRouteHandle FWebUtil::BindRoute(const TSharedPtr<IHttpRouter>& HttpRouter, 
 	if (RouteHandle == nullptr)
 	{
 		// only fail if path exists
-		UE_LOG(UALog, Warning, TEXT("Failed to bind HTTP router %s %s! Path already exists!"), *VerbString, *Path);
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("Failed to bind HTTP router %s %s! Path already exists!"), *VerbString, *Path);
 		if (GEngine != nullptr)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red,
@@ -45,7 +44,7 @@ FHttpRouteHandle FWebUtil::BindRoute(const TSharedPtr<IHttpRouter>& HttpRouter, 
 	}
 
 	// bind successfully
-	UE_LOG(UALog, Log, TEXT("Bind HTTP router: %s %s"), *VerbString, *Path);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Bind HTTP router: %s %s"), *VerbString, *Path);
 	if (GEngine != nullptr)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Cyan,
@@ -74,7 +73,7 @@ TSharedPtr<FJsonObject> FWebUtil::GetRequestJsonBody(const FHttpServerRequest& R
 	bool bIsUTF8JsonContent = CheckRequestContent(Request);
 	if (!bIsUTF8JsonContent)
 	{
-		UE_LOG(UALog, Warning, TEXT("caught request not in utf-8 application/json body content!"));
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("caught request not in utf-8 application/json body content!"));
 		return nullptr;
 	}
 
@@ -83,7 +82,7 @@ TSharedPtr<FJsonObject> FWebUtil::GetRequestJsonBody(const FHttpServerRequest& R
 	TSharedPtr<FJsonObject> RequestBody = FCommonUtil::JsonParse(RequestBodyString);
 	if (RequestBody == nullptr)
 	{
-		UE_LOG(UALog, Warning, TEXT("failed to parse request string to json: %s"), *RequestBodyString);
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("failed to parse request string to json: %s"), *RequestBodyString);
 	}
 
 	return RequestBody;
@@ -174,7 +173,7 @@ FString FWebUtil::GetRequestStringBody(const FHttpServerRequest& Request)
 	// Body to utf8 string, should be called after CheckRequestContent(Request, bIsCheckUTF8 = true)
 	TArray<uint8> RequestBodyBytes = Request.Body;
 	FString RequestBodyString = FString(UTF8_TO_TCHAR(RequestBodyBytes.GetData()));
-	UE_LOG(UALog, Log, TEXT("Request string body: %s"), *RequestBodyString);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Request string body: %s"), *RequestBodyString);
 	return RequestBodyString;
 }
 
@@ -219,10 +218,10 @@ bool FWebUtil::CheckRequestContent(const FHttpServerRequest& Request, bool bIsUT
 #endif
 	}
 	// TODO: Get HTTP Request Path
-	UE_LOG(UALog, Verbose, TEXT("Checked request content %s %s: (utf-8: %s, json: %s)"),
+	UE_LOG(LogUnrealAutomator, Verbose, TEXT("Checked request content %s %s: (utf-8: %s, json: %s)"),
 		*GetHttpVerbStringFromEnum(Request.Verb),
 		*Request.RelativePath.GetPath(),
-		*UKismetStringLibrary::Conv_BoolToString(bIsUTF8Valid),
-		*UKismetStringLibrary::Conv_BoolToString(bIsJsonValid));
+		*FCommonUtil::BoolToString(bIsUTF8Valid),
+		*FCommonUtil::BoolToString(bIsJsonValid));
 	return bIsUTF8Valid && bIsJsonValid;
 }

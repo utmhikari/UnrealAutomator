@@ -7,7 +7,7 @@
 
 TUniquePtr<FHttpServerResponse> FBaseHandler::HealthCheck(const FHttpServerRequest& Request)
 {
-	UE_LOG(UALog, Log, TEXT("Health Check"));
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Health Check"));
 	if (GEngine != nullptr)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, TEXT("Health Check Successfully!"));

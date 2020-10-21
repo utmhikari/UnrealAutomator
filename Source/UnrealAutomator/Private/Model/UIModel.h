@@ -5,6 +5,14 @@
 #include "UIModel.generated.h"
 
 
+enum class EUIWidgetQueryMatchState : int8
+{
+	None = 0,
+	Child,
+	Parent,
+	All,
+};
+
 /**
  * Query template for ui widget
  */
@@ -29,6 +37,9 @@ public:
 		FString ClassName = TEXT("");
 
 	UPROPERTY()
+		bool bIsKeptParentClass = false;
+
+	UPROPERTY()
 		bool bIsNameAsKeyword = false;
 
 	UPROPERTY()
@@ -39,6 +50,7 @@ public:
 		, Name(TEXT(""))
 		, Text(TEXT(""))
 		, ClassName(TEXT(""))
+		, bIsKeptParentClass(false)
 		, bIsNameAsKeyword(false)
 		, bIsTextAsKeyword(false)
 	{}
@@ -47,17 +59,22 @@ public:
 		FString InName,
 		FString InText,
 		FString InClassName,
+		bool bInIsKeptParentClass,
 		bool bInIsNameAsKeyword,
 		bool bInIsTextAsKeyword)
 		: ID(InID)
 		, Name(InName)
 		, Text(InText)
 		, ClassName(InClassName)
+		, bIsKeptParentClass(bInIsKeptParentClass)
 		, bIsNameAsKeyword(bInIsNameAsKeyword)
 		, bIsTextAsKeyword(bInIsTextAsKeyword)
 	{}
 
-	bool IsMatch(UWidget* Widget,
+	FString ToString();
+	
+
+	EUIWidgetQueryMatchState Match(UWidget* Widget,
 		bool bIsDisabledIncluded = false,
 		bool bIsInvisibleIncluded = false);
 

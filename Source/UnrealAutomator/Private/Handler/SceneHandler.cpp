@@ -7,7 +7,7 @@
 
 TUniquePtr<FHttpServerResponse> FSceneHandler::GetCurrentMapInfo(const FHttpServerRequest& Request)
 {
-	UE_LOG(UALog, Log, TEXT("Get current map info..."));
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Get current map info..."));
 	UWorld* World = FSceneService::GetCurrentWorld();
 	if (World == nullptr)
 	{

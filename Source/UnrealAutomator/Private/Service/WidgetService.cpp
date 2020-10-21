@@ -1,5 +1,7 @@
 #include "Service/WidgetService.h"
 #include "Log.h"
+#include "Engine.h"
+#include "Util/InspectUtil.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Service/ViewportService.h"
@@ -69,7 +71,7 @@ TSharedPtr<FJsonObject> FWidgetService::GetWidgetJson(UWidget* Widget)
 		{
 			if (Text.Len() > 0)
 			{
-				UE_LOG(UALog, Warning,
+				UE_LOG(LogUnrealAutomator, Warning,
 					TEXT("[%s] AbsPosX: %f,AbsPoxY: %f,GAPosX: %f,GAPosY: %f,ScreenPosX: %f,ScreenPosY: %f,VPPosX: %f,VPPosY: %f,ViewportScale: %f,WidthScale: %f,HeightScale: %f,Width: %f,Height: %f,GAWidth: %f,GAHeight: %f"),
 					*Text,
 					WidgetPosition.X,
@@ -126,7 +128,7 @@ const FString* FWidgetService::GetWidgetText(UWidget* Widget)
 	UTextBlock* TextBlock = Cast<UTextBlock>(Widget);
 	if (TextBlock != nullptr)
 	{
-		UE_LOG(UALog, Verbose, TEXT("GetText: Cast widget %s (%d) as TextBlock..."), *Widget->GetName(), Widget->GetUniqueID());
+		UE_LOG(LogUnrealAutomator, Verbose, TEXT("GetText: Cast widget %s (%d) as TextBlock..."), *Widget->GetName(), Widget->GetUniqueID());
 		// use GetText() to ensure compatible with binding
 		return &TextBlock->GetText().ToString();
 	}
@@ -134,21 +136,21 @@ const FString* FWidgetService::GetWidgetText(UWidget* Widget)
 	URichTextBlock* RichTextBlock = Cast<URichTextBlock>(Widget);
 	if (RichTextBlock != nullptr)
 	{
-		UE_LOG(UALog, Verbose, TEXT("GetText: Cast widget %s (%d) as RichTextBlock..."), *Widget->GetName(), Widget->GetUniqueID());
+		UE_LOG(LogUnrealAutomator, Verbose, TEXT("GetText: Cast widget %s (%d) as RichTextBlock..."), *Widget->GetName(), Widget->GetUniqueID());
 		return &RichTextBlock->GetText().ToString();
 	}
 
 	UEditableTextBox* EditableTextBox = Cast<UEditableTextBox>(Widget);
 	if (EditableTextBox != nullptr)
 	{
-		UE_LOG(UALog, Verbose, TEXT("GetText: Cast widget %s (%d) as EditableTextBox..."), *Widget->GetName(), Widget->GetUniqueID());
+		UE_LOG(LogUnrealAutomator, Verbose, TEXT("GetText: Cast widget %s (%d) as EditableTextBox..."), *Widget->GetName(), Widget->GetUniqueID());
 		return &EditableTextBox->GetText().ToString();
 	}
 
 	UMultiLineEditableTextBox* MultiLineEditableTextBox = Cast<UMultiLineEditableTextBox>(Widget);
 	if (MultiLineEditableTextBox != nullptr)
 	{
-		UE_LOG(UALog, Verbose, TEXT("GetText: Casted widget %s (%d) as MultiLineEditableTextBox..."), *Widget->GetName(), Widget->GetUniqueID());
+		UE_LOG(LogUnrealAutomator, Verbose, TEXT("GetText: Casted widget %s (%d) as MultiLineEditableTextBox..."), *Widget->GetName(), Widget->GetUniqueID());
 		return &MultiLineEditableTextBox->GetText().ToString();
 	}
 	return nullptr;
@@ -159,7 +161,7 @@ bool FWidgetService::SetWidgetText(UWidget* Widget, FString Text)
 	UTextBlock* TextBlock = Cast<UTextBlock>(Widget);
 	if (TextBlock != nullptr)
 	{
-		UE_LOG(UALog, Log, TEXT("SetText: Cast widget %d as TextBlock..."), Widget->GetUniqueID());
+		UE_LOG(LogUnrealAutomator, Log, TEXT("SetText: Cast widget %d as TextBlock..."), Widget->GetUniqueID());
 		TextBlock->SetText(FText::FromString(Text));
 		return true;
 	}
@@ -167,7 +169,7 @@ bool FWidgetService::SetWidgetText(UWidget* Widget, FString Text)
 	URichTextBlock* RichTextBlock = Cast<URichTextBlock>(Widget);
 	if (RichTextBlock != nullptr)
 	{
-		UE_LOG(UALog, Log, TEXT("SetText: Cast widget %d as RichTextBlock..."), Widget->GetUniqueID());
+		UE_LOG(LogUnrealAutomator, Log, TEXT("SetText: Cast widget %d as RichTextBlock..."), Widget->GetUniqueID());
 		RichTextBlock->SetText(FText::FromString(Text));
 		return true;
 	}
@@ -175,7 +177,7 @@ bool FWidgetService::SetWidgetText(UWidget* Widget, FString Text)
 	UEditableTextBox* EditableTextBox = Cast<UEditableTextBox>(Widget);
 	if (EditableTextBox != nullptr)
 	{
-		UE_LOG(UALog, Log, TEXT("SetText: Cast widget %d as EditableTextBox..."), Widget->GetUniqueID());
+		UE_LOG(LogUnrealAutomator, Log, TEXT("SetText: Cast widget %d as EditableTextBox..."), Widget->GetUniqueID());
 		EditableTextBox->SetText(FText::FromString(Text));
 		return true;
 	}
@@ -183,7 +185,7 @@ bool FWidgetService::SetWidgetText(UWidget* Widget, FString Text)
 	UMultiLineEditableTextBox* MultiLineEditableTextBox = Cast<UMultiLineEditableTextBox>(Widget);
 	if (MultiLineEditableTextBox != nullptr)
 	{
-		UE_LOG(UALog, Log, TEXT("SetText: Cast widget %d as MultiLineEditableTextBox..."), Widget->GetUniqueID());
+		UE_LOG(LogUnrealAutomator, Log, TEXT("SetText: Cast widget %d as MultiLineEditableTextBox..."), Widget->GetUniqueID());
 		MultiLineEditableTextBox->SetText(FText::FromString(Text));
 		return true;
 	}
@@ -192,47 +194,40 @@ bool FWidgetService::SetWidgetText(UWidget* Widget, FString Text)
 
 bool FWidgetService::InvokeWidgetEvent(UWidget* Widget, FString EventName)
 {
-	if (Widget == nullptr)
+	if (EventName.Len() == 0)
 	{
-		UE_LOG(UALog, Log, TEXT("Failed to invoke widget event %s! Widget is nullptr!"), *EventName);
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("Failed to invoke widget event! Empty event name!"));
 		return false;
 	}
 
-	// currently supports button
-	UButton* Button = Cast<UButton>(Widget);
-	if (Button != nullptr)
+	if (Widget == nullptr)
 	{
-		if (EventName.Equals(TEXT("OnClicked")))
-		{
-			Button->OnClicked.Broadcast();
-			return true;
-		}
-
-		if (EventName.Equals(TEXT("OnPressed")))
-		{
-			Button->OnPressed.Broadcast();
-			return true;
-		}
-
-		if (EventName.Equals(TEXT("OnReleased")))
-		{
-			Button->OnReleased.Broadcast();
-			return true;
-		}
-
-		if (EventName.Equals(TEXT("OnHovered")))
-		{
-			Button->OnHovered.Broadcast();
-			return true;
-		}
-
-		if (EventName.Equals(TEXT("OnUnhovered")))
-		{
-			Button->OnUnhovered.Broadcast();
-			return true;
-		}
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("Failed to invoke widget event %s! Widget is nullptr!"), *EventName);
+		return false;
 	}
-	
-	UE_LOG(UALog, Log, TEXT("No widget type to support event %s!"), *EventName);
-	return false;
+
+	FString WidgetName = Widget->GetName();
+	int32 WidgetID = Widget->GetUniqueID();
+	FString ClassName = Widget->GetClass()->GetName();
+
+	UProperty* Property = FInspectUtil::GetPropertyByName(Widget, EventName);
+	if (Property == nullptr)
+	{
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("Unable to find property %s on %s widget %s (%d)!"), *EventName, *ClassName, *WidgetName, WidgetID);
+		return false;
+	}
+
+	// event should be a multi-cast delegate without params
+	UMulticastDelegateProperty* MultiCastProperty = Cast<UMulticastDelegateProperty>(Property);
+	if (MultiCastProperty == nullptr)
+	{
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("Unable to cast multicast property %s on %s widget %s (%d)!"), *EventName, *ClassName, *WidgetName, WidgetID);
+		return false;
+	}
+	void* PropertyValue = MultiCastProperty->ContainerPtrToValuePtr<void*>(Widget);
+	auto MultiCastDelegate = MultiCastProperty->GetMulticastDelegate(PropertyValue);
+	MultiCastDelegate->ProcessMulticastDelegate<UObject>(nullptr);
+
+	UE_LOG(LogUnrealAutomator, Warning, TEXT("Successfully invoke event %s of %s widget %s (%d)!"), *EventName, *ClassName, *WidgetName, WidgetID);
+	return true;
 }

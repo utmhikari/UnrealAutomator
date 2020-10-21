@@ -25,7 +25,7 @@ TUniquePtr<FHttpServerResponse> FCommandHandler::ExecuteUECommand(const FHttpSer
 		return FWebUtil::ErrorResponse(TEXT("player controller not found!"));
 	}
 	PlayerController->ConsoleCommand(Command);
-	UE_LOG(UALog, Log, TEXT("Executed UE command: %s"), *Command);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Executed UE command: %s"), *Command);
 #if WITH_EDITOR
 	if (GEngine != nullptr)
 	{

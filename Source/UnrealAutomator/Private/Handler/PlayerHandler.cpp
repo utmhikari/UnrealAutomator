@@ -52,7 +52,7 @@ TUniquePtr<FHttpServerResponse> FPlayerHandler::SetPlayerLocation(const FHttpSer
 	NewLocation.X = RequestBody->GetNumberField(TEXT("x"));
 	NewLocation.Y = RequestBody->GetNumberField(TEXT("y"));
 	NewLocation.Z = RequestBody->GetNumberField(TEXT("z"));
-	UE_LOG(UALog, Log, TEXT("Set player new location to (%.2f, %.2f, %.2f)"), NewLocation.X, NewLocation.Y, NewLocation.Z);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Set player new location to (%.2f, %.2f, %.2f)"), NewLocation.X, NewLocation.Y, NewLocation.Z);
 
 	if (!PlayerPawn->SetActorLocation(NewLocation, false, nullptr, ETeleportType::ResetPhysics))
 	{
@@ -79,7 +79,7 @@ TUniquePtr<FHttpServerResponse> FPlayerHandler::SetPlayerRotation(const FHttpSer
 	NewRotation.Pitch = RequestBody->GetNumberField("pitch");
 	NewRotation.Yaw = RequestBody->GetNumberField("yaw");
 	NewRotation.Roll = RequestBody->GetNumberField("roll");
-	UE_LOG(UALog, Log, TEXT("Set player new rotation to (pitch: %.2f, yaw: %.2f, roll: %.2f)"), NewRotation.Pitch, NewRotation.Yaw, NewRotation.Roll);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Set player new rotation to (pitch: %.2f, yaw: %.2f, roll: %.2f)"), NewRotation.Pitch, NewRotation.Yaw, NewRotation.Roll);
 	if (!PlayerPawn->SetActorRotation(NewRotation, ETeleportType::ResetPhysics))
 	{
 		return FWebUtil::ErrorResponse(TEXT("Failed to set player rotation!"));

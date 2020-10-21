@@ -11,18 +11,17 @@
 
 TSharedPtr<FJsonObject> FUIService::GetWidgetTreeJson()
 {
-	// reset viewport
 	FViewportService::Reset();
 
 	TSharedPtr<FJsonObject> WidgetRoot = MakeShareable(new FJsonObject());
 
-	UE_LOG(UALog, Verbose, TEXT("DFS WidgetTree..."));
+	UE_LOG(LogUnrealAutomator, Verbose, TEXT("DFS WidgetTree..."));
 	for (TObjectIterator<UUserWidget> Itr; Itr; ++Itr)
 	{
 		UUserWidget* UserWidget = *Itr;
 		if (UserWidget == nullptr || UserWidget->WidgetTree == nullptr || !UserWidget->IsVisible())
 		{
-			UE_LOG(UALog, Verbose, TEXT("UUserWidget iterator got a null or invisible UUserWidget!"));
+			UE_LOG(LogUnrealAutomator, Verbose, TEXT("UUserWidget iterator got a null or invisible UUserWidget!"));
 			continue;
 		}
 		TraverseWidget(UserWidget->WidgetTree->RootWidget, WidgetRoot);
@@ -33,6 +32,8 @@ TSharedPtr<FJsonObject> FUIService::GetWidgetTreeJson()
 
 UWidget* FUIService::FindWidget(FUIWidgetQuery Query)
 {
+	FViewportService::Reset();
+
 	for (TObjectIterator<UUserWidget> Itr; Itr; ++Itr)
 	{
 		UUserWidget* UserWidget = *Itr;
@@ -40,7 +41,7 @@ UWidget* FUIService::FindWidget(FUIWidgetQuery Query)
 		{
 			continue;
 		}
-		UWidget* Result = FindWidget(UserWidget->WidgetTree->RootWidget, Query);
+		UWidget* Result = FindWidget(UserWidget->WidgetTree->RootWidget, Query, nullptr);
 		if (Result != nullptr)
 		{
 			return Result;
@@ -50,16 +51,39 @@ UWidget* FUIService::FindWidget(FUIWidgetQuery Query)
 }
 
 
-UWidget* FUIService::FindWidget(UWidget* Root, FUIWidgetQuery Query)
+UWidget* FUIService::FindWidget(UWidget* Root, FUIWidgetQuery Query, UWidget* Parent)
 {
 	if (Root == nullptr)
 	{
 		return nullptr;
 	}
 
-	if (Query.IsMatch(Root))
+	EUIWidgetQueryMatchState MatchState = Query.Match(Root);
+	UE_LOG(LogUnrealAutomator, Verbose, TEXT("MatchState on %s widget %s (%d) --- %d"),
+		*Root->GetClass()->GetName(),
+		*Root->GetName(),
+		Root->GetUniqueID(),
+		static_cast<int8>(MatchState));
+
+	if (MatchState == EUIWidgetQueryMatchState::All)
 	{
 		return Root;
+	}
+	if (Parent != nullptr && MatchState == EUIWidgetQueryMatchState::Child)
+	{
+		return Parent;
+	}
+	if (MatchState == EUIWidgetQueryMatchState::Parent)
+	{
+		if (Parent == nullptr)
+		{
+			Parent = Root;
+		}
+		else
+		{
+			// no need to find a second child parent
+			MatchState = EUIWidgetQueryMatchState::None;
+		}
 	}
 
 	if (INamedSlotInterface* NamedSlotHost = Cast<INamedSlotInterface>(Root))
@@ -70,9 +94,10 @@ UWidget* FUIService::FindWidget(UWidget* Root, FUIWidgetQuery Query)
 		{
 			if (UWidget* SlotContent = NamedSlotHost->GetContentForSlot(SlotName))
 			{
-				UWidget* Result = FindWidget(SlotContent, Query);
+				UWidget* Result = FindWidget(SlotContent, Query, Parent);
 				if (Result != nullptr)
 				{
+					// should be a MatchAll or current Parent
 					return Result;
 				}
 			}
@@ -86,7 +111,7 @@ UWidget* FUIService::FindWidget(UWidget* Root, FUIWidgetQuery Query)
 		{
 			if (UWidget* ChildWidget = PanelParent->GetChildAt(ChildIndex))
 			{
-				UWidget* Result = FindWidget(ChildWidget, Query);
+				UWidget* Result = FindWidget(ChildWidget, Query, Parent);
 				if (Result != nullptr)
 				{
 					return Result;
@@ -106,17 +131,18 @@ void FUIService::TraverseWidget(UWidget* Widget, const TSharedPtr<FJsonObject>& 
 		return;
 	}
 
-	if (!Parent->HasField(TEXT("children")))
+	if (!Parent->HasField(TEXT("Children")))
 	{
-		Parent->SetObjectField(TEXT("children"), MakeShareable(new FJsonObject()));
+		Parent->SetObjectField(TEXT("Children"), MakeShareable(new FJsonObject()));
 	}
 
 	TSharedPtr<FJsonObject> WidgetJson = FWidgetService::GetWidgetJson(Widget);
+	WidgetJson->SetNumberField(TEXT("ParentID"), Parent->GetNumberField("ID"));
 
 	// traverse children of widget if enabled and visible
 	if (Widget->IsVisible() && Widget->GetIsEnabled())
 	{
-		UE_LOG(UALog, Verbose, TEXT("Detected UWidget: %s (%s)"), *Widget->GetName(), *Widget->GetClass()->GetName());
+		UE_LOG(LogUnrealAutomator, Verbose, TEXT("Detected UWidget: %s (%s)"), *Widget->GetName(), *Widget->GetClass()->GetName());
 
 		if (INamedSlotInterface* NamedSlotHost = Cast<INamedSlotInterface>(Widget))
 		{
@@ -145,7 +171,7 @@ void FUIService::TraverseWidget(UWidget* Widget, const TSharedPtr<FJsonObject>& 
 	}
 	else
 	{
-		UE_LOG(UALog, Verbose, TEXT("Detected disabled or invisible UWidget: %s (%s)"), *Widget->GetName(), *Widget->GetClass()->GetName());
+		UE_LOG(LogUnrealAutomator, Verbose, TEXT("Detected disabled or invisible UWidget: %s (%s)"), *Widget->GetName(), *Widget->GetClass()->GetName());
 	}
 
 	Parent->GetObjectField(TEXT("children"))

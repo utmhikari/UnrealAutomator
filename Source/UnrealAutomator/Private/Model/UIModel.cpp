@@ -1,87 +1,143 @@
 #include "Model/UIModel.h"
 #include "Service/WidgetService.h"
+#include "Util/CommonUtil.h"
 
 
-bool FUIWidgetQuery::IsMatch(UWidget* Widget, bool bIsDisabledIncluded, bool bIsInvisibleIncluded)
+FString FUIWidgetQuery::ToString()
 {
+	return FString::Printf(
+		TEXT("ID: %d, Name: %s, Text: %s, ClassName: %s, bIsKeptParentClass: %s, bIsNameAsKeyword: %s, bIsTextAsKeyword: %s"),
+		ID,
+		*Name,
+		*Text,
+		*ClassName,
+		*FCommonUtil::BoolToString(bIsKeptParentClass),
+		*FCommonUtil::BoolToString(bIsNameAsKeyword),
+		*FCommonUtil::BoolToString(bIsTextAsKeyword)
+	);
+}
+
+
+EUIWidgetQueryMatchState FUIWidgetQuery::Match(UWidget* Widget, bool bIsDisabledIncluded, bool bIsInvisibleIncluded)
+{
+	// init as All
+	EUIWidgetQueryMatchState MatchState = EUIWidgetQueryMatchState::All;
+		
+	// check valid
 	if (Widget == nullptr)
 	{
-		return false;
+		return EUIWidgetQueryMatchState::None;
 	}
 
 	if (!bIsDisabledIncluded && !Widget->GetIsEnabled())
 	{
-		return false;
+		return EUIWidgetQueryMatchState::None;
 	}
 
 	if (!bIsInvisibleIncluded && !Widget->IsVisible())
 	{
-		return false;
+		return EUIWidgetQueryMatchState::None;
 	}
 
-	if (this->ID == 0 && this->ClassName.Len() == 0 && this->Name.Len() == 0 && this->Text.Len() == 0)
+	// check class, only class name will consider parent/child relations
+	bool bHasClassName = !this->ClassName.IsEmpty();
+	if (bHasClassName)
 	{
-		// empty query
-		return false;
+		if (!this->ClassName.Equals(Widget->GetClass()->GetName()))
+		{
+			if (!this->bIsKeptParentClass)
+			{
+				return EUIWidgetQueryMatchState::None;
+			}
+			else
+			{
+				// All -> Child
+				MatchState = EUIWidgetQueryMatchState::Child;
+			}
+		}
+	}
+	else
+	{
+		// All -> Child
+		MatchState = EUIWidgetQueryMatchState::Child;
 	}
 
+	// check empty
+	if (this->ID == 0 && this->Name.IsEmpty() && this->Text.IsEmpty())
+	{
+		if (!bHasClassName || (this->bIsKeptParentClass && MatchState == EUIWidgetQueryMatchState::Child))
+		{
+			// 1. completely empty query
+			// 2. class mismatches, others empty
+			return EUIWidgetQueryMatchState::None;
+		}
+		else
+		{
+			// class matches yet others empty, this is the one and only
+			return EUIWidgetQueryMatchState::All;
+		}
+	}
+
+	// check ID
 	if (this->ID != 0)
 	{
 		if (this->ID != Widget->GetUniqueID())
 		{
-			return false;
+			if (!bIsKeptParentClass || MatchState != EUIWidgetQueryMatchState::All)
+			{
+				// impossible to become a parent
+				return EUIWidgetQueryMatchState::None;
+			}
+			else
+			{
+				// All -> Parent
+				MatchState = EUIWidgetQueryMatchState::Parent;
+			}
 		}
 	}
-
-	if (this->ClassName.Len() != 0)
-	{
-		if (!this->ClassName.Equals(Widget->GetClass()->GetName()))
-		{
-			return false;
-		}
-	}
-
-	if (this->Name.Len() != 0)
+	
+	if (!this->Name.IsEmpty())
 	{
 		FString WidgetName = Widget->GetName();
-		if (!this->bIsNameAsKeyword)
+
+		// if not matches
+		if ((!this->bIsNameAsKeyword && !WidgetName.Equals(this->Name)) ||
+			(this->bIsNameAsKeyword && !WidgetName.Contains(this->Name)))
 		{
-			if (!WidgetName.Equals(this->Name))
+			if (!bIsKeptParentClass || MatchState != EUIWidgetQueryMatchState::All)
 			{
-				return false;
+				// impossible to become a parent
+				return EUIWidgetQueryMatchState::None;
 			}
-		}
-		else
-		{
-			if (!WidgetName.Contains(this->Name))
+			else
 			{
-				return false;
+				// All/Parent -> Parent
+				MatchState = EUIWidgetQueryMatchState::Parent;
 			}
 		}
 	}
 
-	if (this->Text.Len() != 0)
+	if (!this->Text.IsEmpty())
 	{
 		const FString* WidgetText = FWidgetService::GetWidgetText(Widget);
-		if (WidgetText == nullptr)
+
+		// if not matches
+		if ((WidgetText == nullptr) || 
+			(!this->bIsTextAsKeyword && !WidgetText->Equals(this->Text)) ||
+			(this->bIsTextAsKeyword && !WidgetText->Contains(this->Text)))
 		{
-			return false;
-		}
-		if (!this->bIsTextAsKeyword)
-		{
-			if (!WidgetText->Equals(this->Text))
+			if (!bIsKeptParentClass || MatchState != EUIWidgetQueryMatchState::All)
 			{
-				return false;
+				// impossible to become a parent
+				return EUIWidgetQueryMatchState::None;
 			}
-		}
-		else
-		{
-			if (!WidgetText->Contains(this->Text))
+			else
 			{
-				return false;
+				// All/Parent -> Parent
+				MatchState = EUIWidgetQueryMatchState::Parent;
 			}
 		}
 	}
 
-	return true;
+	return MatchState;
 }

@@ -66,17 +66,17 @@ public:
 		// extend/update struct with json values
 		if (!FJsonObjectConverter::JsonObjectToUStruct<UStructType>(JsonBody.ToSharedRef(), StructBody, 0, 0))
 		{
-			UE_LOG(UALog, Warning, TEXT("failed to parse json body to ustruct!"))
+			UE_LOG(LogUnrealAutomator, Warning, TEXT("failed to parse json body to ustruct!"))
 			return false;
 		}
 
 		if (StructBody == nullptr)
 		{
-			UE_LOG(UALog, Warning, TEXT("cast to USTRUCT failed! struct ptr is still null!"));
+			UE_LOG(LogUnrealAutomator, Warning, TEXT("cast to USTRUCT failed! struct ptr is still null!"));
 			return false;
 		}
 
-		UE_LOG(UALog, Log, TEXT("convert to USTRUCT successfully!"));
+		UE_LOG(LogUnrealAutomator, Log, TEXT("convert to USTRUCT successfully!"));
 
 		return true;
 	}

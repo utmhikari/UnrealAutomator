@@ -12,7 +12,7 @@ UWorld* FSceneService::GetCurrentWorld()
 	{
 		return GEngine->GetWorld();
 	}
-	UE_LOG(UALog, Warning, TEXT("Cannot find GEngine! Use UserWidget to find current world!"));
+	UE_LOG(LogUnrealAutomator, Warning, TEXT("Cannot find GEngine! Use UserWidget to find current world!"));
 	// find by user widget
 	for (TObjectIterator<UUserWidget> Itr; Itr; ++Itr)
 	{
@@ -23,7 +23,7 @@ UWorld* FSceneService::GetCurrentWorld()
 		auto World = Itr->GetWorld();
 		if (World != nullptr)
 		{
-			UE_LOG(UALog, Log, TEXT("Found current world via UserWidget!"));
+			UE_LOG(LogUnrealAutomator, Log, TEXT("Found current world via UserWidget!"));
 			return World;
 		}
 	}
