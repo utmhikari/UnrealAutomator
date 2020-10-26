@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CoreMinimal.h"
+#include "EngineMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "UObject/Class.h"
 #include "UObject/UnrealType.h"
@@ -16,4 +16,9 @@ class FInspectUtil
 public:
 	// Get object value of specific property name on its class definition
 	static UProperty* GetPropertyByName(UObject* Object, FString Name);
+
+	/**
+	 * find class by string, see https://answers.unrealengine.com/questions/92651/get-blueprint-class-by-string-in-c.html
+	 */
+	static UClass* FindClass(const FString& Name);
 };

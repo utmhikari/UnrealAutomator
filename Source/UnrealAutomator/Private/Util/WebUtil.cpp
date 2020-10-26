@@ -2,6 +2,7 @@
 #include "Util/CommonUtil.h"
 #include "Log.h"
 #include "Engine.h"
+#include "Kismet/KismetStringLibrary.h"
 
 
 /** ========================== Public Methods ======================= */
@@ -221,7 +222,7 @@ bool FWebUtil::CheckRequestContent(const FHttpServerRequest& Request, bool bIsUT
 	UE_LOG(LogUnrealAutomator, Verbose, TEXT("Checked request content %s %s: (utf-8: %s, json: %s)"),
 		*GetHttpVerbStringFromEnum(Request.Verb),
 		*Request.RelativePath.GetPath(),
-		*FCommonUtil::BoolToString(bIsUTF8Valid),
-		*FCommonUtil::BoolToString(bIsJsonValid));
+		*UKismetStringLibrary::Conv_BoolToString(bIsUTF8Valid),
+		*UKismetStringLibrary::Conv_BoolToString(bIsJsonValid));
 	return bIsUTF8Valid && bIsJsonValid;
 }

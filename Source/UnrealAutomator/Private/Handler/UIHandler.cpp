@@ -50,7 +50,7 @@ TUniquePtr<FHttpServerResponse> FUIHandler::GetWidget(const FHttpServerRequest& 
 
 TUniquePtr<FHttpServerResponse> FUIHandler::InvokeWidgetEvent(const FHttpServerRequest& Request)
 {
-	const FString* EventName = Request.QueryParams.Find(TEXT("name"));
+	const FString* EventName = Request.QueryParams.Find(TEXT("Name"));
 	if (EventName == nullptr)
 	{
 		return FWebUtil::ErrorResponse(TEXT("Cannot get event to invoke!"));
@@ -80,7 +80,7 @@ TUniquePtr<FHttpServerResponse> FUIHandler::InvokeWidgetEvent(const FHttpServerR
 
 TUniquePtr<FHttpServerResponse> FUIHandler::SetWidgetText(const FHttpServerRequest& Request)
 {
-	const FString* Text = Request.QueryParams.Find(TEXT("text"));
+	const FString* Text = Request.QueryParams.Find(TEXT("Text"));
 	if (Text == nullptr)
 	{
 		return FWebUtil::ErrorResponse(TEXT("Cannot get text to set!"));

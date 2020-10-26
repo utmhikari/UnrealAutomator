@@ -1,6 +1,7 @@
 #include "Model/UIModel.h"
 #include "Service/WidgetService.h"
 #include "Util/CommonUtil.h"
+#include "Kismet/KismetStringLibrary.h"
 
 
 FString FUIWidgetQuery::ToString()
@@ -11,9 +12,9 @@ FString FUIWidgetQuery::ToString()
 		*Name,
 		*Text,
 		*ClassName,
-		*FCommonUtil::BoolToString(bIsKeptParentClass),
-		*FCommonUtil::BoolToString(bIsNameAsKeyword),
-		*FCommonUtil::BoolToString(bIsTextAsKeyword)
+		*UKismetStringLibrary::Conv_BoolToString(bIsKeptParentClass),
+		*UKismetStringLibrary::Conv_BoolToString(bIsNameAsKeyword),
+		*UKismetStringLibrary::Conv_BoolToString(bIsTextAsKeyword)
 	);
 }
 

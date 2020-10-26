@@ -174,7 +174,7 @@ void FUIService::TraverseWidget(UWidget* Widget, const TSharedPtr<FJsonObject>& 
 		UE_LOG(LogUnrealAutomator, Verbose, TEXT("Detected disabled or invisible UWidget: %s (%s)"), *Widget->GetName(), *Widget->GetClass()->GetName());
 	}
 
-	Parent->GetObjectField(TEXT("children"))
+	Parent->GetObjectField(TEXT("Children"))
 		.ToSharedRef()
 		.Get()
 		.SetObjectField(FString::FromInt(Widget->GetUniqueID()), WidgetJson);

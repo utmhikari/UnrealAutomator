@@ -51,6 +51,9 @@ void FWebServer::BindRouters(const TSharedPtr<IHttpRouter>& HttpRouter)
 
 	/* ====================== Player Handler ==================== */
 
+	// get player actions
+	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/player/inputs"), EHttpServerRequestVerbs::VERB_GET, &FPlayerHandler::GetPlayerInputs);
+
 	// get player location
 	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/player/info"), EHttpServerRequestVerbs::VERB_GET, &FPlayerHandler::GetPlayerInfo);
 
@@ -68,7 +71,7 @@ void FWebServer::BindRouters(const TSharedPtr<IHttpRouter>& HttpRouter)
 	// get widgets on query
 	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/ui/widget"), EHttpServerRequestVerbs::VERB_POST, &FUIHandler::GetWidget);
 
-	// call widget callback
+	// invoke event on widget
 	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/ui/event"), EHttpServerRequestVerbs::VERB_POST, &FUIHandler::InvokeWidgetEvent);
 
 
@@ -82,7 +85,13 @@ void FWebServer::BindRouters(const TSharedPtr<IHttpRouter>& HttpRouter)
 
 	/* ====================== Scene Handler ==================== */
 
-	// get current map info
-	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/scene/map/current"), EHttpServerRequestVerbs::VERB_GET, &FSceneHandler::GetCurrentMapInfo);
+	// get current level info
+	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/scene/level/current/info"), EHttpServerRequestVerbs::VERB_GET, &FSceneHandler::GetCurrentLevelInfo);
+
+	// get actors info
+	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/scene/actors/info"), EHttpServerRequestVerbs::VERB_POST, &FSceneHandler::GetActorsInfo);
+
+	// get actor info
+	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/scene/actor/info"), EHttpServerRequestVerbs::VERB_GET, &FSceneHandler::GetActorInfo);
 }
 

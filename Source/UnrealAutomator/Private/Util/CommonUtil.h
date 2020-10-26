@@ -10,9 +10,6 @@
 class FCommonUtil
 {
 public:
-	// bool to string
-	static FString BoolToString(bool Value);
-
 	// Get current time, format as string
 	static FString GetCurrentTime();
 

@@ -15,7 +15,7 @@ TUniquePtr<FHttpServerResponse> FCommandHandler::ExecuteUECommand(const FHttpSer
 	TSharedPtr<FJsonObject> RequestBody = FWebUtil::GetRequestJsonBody(Request);
 	FString Command;
 	if (RequestBody == nullptr ||
-		!RequestBody->TryGetStringField(TEXT("cmd"), Command))
+		!RequestBody->TryGetStringField(TEXT("Cmd"), Command))
 	{
 		return FWebUtil::ErrorResponse(TEXT("command not found!"));
 	}

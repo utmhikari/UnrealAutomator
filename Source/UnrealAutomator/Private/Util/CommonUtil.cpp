@@ -3,13 +3,7 @@
 #include "Runtime/Json/Public/Dom/JsonValue.h"
 #include "Runtime/Json/Public/Serialization/JsonWriter.h"
 #include "Runtime/Json/Public/Serialization/JsonSerializer.h"
-#include "Kismet/KismetStringLibrary.h"
 
-
-FString FCommonUtil::BoolToString(bool Value)
-{
-	return UKismetStringLibrary::Conv_BoolToString(Value);
-}
 
 FString FCommonUtil::GetCurrentTime()
 {

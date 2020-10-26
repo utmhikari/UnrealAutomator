@@ -44,6 +44,7 @@ public class UnrealAutomator : ModuleRules
 				"JsonUtilities",
 				"Json",
 				"UMG",
+				"InputCore",
 			}
 			);
 		

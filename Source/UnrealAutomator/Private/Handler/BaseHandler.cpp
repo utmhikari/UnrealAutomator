@@ -18,7 +18,7 @@ TUniquePtr<FHttpServerResponse> FBaseHandler::HealthCheck(const FHttpServerReque
 TUniquePtr<FHttpServerResponse> FBaseHandler::Screenshot(const FHttpServerRequest& Request)
 {
 	auto QueryParams = Request.QueryParams;
-	FString* ScreenShotName = QueryParams.Find(TEXT("name"));
+	FString* ScreenShotName = QueryParams.Find(TEXT("Name"));
 	bool bSuccess;
 	if (ScreenShotName == nullptr)
 	{

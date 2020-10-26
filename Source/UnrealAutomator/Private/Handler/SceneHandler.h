@@ -9,11 +9,19 @@ class FSceneHandler
 {
 public:
 	/**
-	 * Get current map info
+	 * Get current level info
 	 */
-	static TUniquePtr<FHttpServerResponse> GetCurrentMapInfo(const FHttpServerRequest& Request);
+	static TUniquePtr<FHttpServerResponse> GetCurrentLevelInfo(const FHttpServerRequest& Request);
 
+	/**
+	 * Get actor info
+	 */
+	static TUniquePtr<FHttpServerResponse> GetActorInfo(const FHttpServerRequest& Request);
 
+	/**
+	 * Get actors info
+	 */
+	static TUniquePtr<FHttpServerResponse> GetActorsInfo(const FHttpServerRequest& Request);
 };
 
 
