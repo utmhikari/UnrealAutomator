@@ -190,16 +190,17 @@ bool FWebUtil::CheckRequestContent(const FHttpServerRequest& Request, bool bIsUT
 			for (auto& Value : HeaderElem.Value)
 			{
 				auto LowerValue = Value.ToLower();
+				// TODO: strict check
 				if (bIsUTF8Checked)
 				{
-					if (LowerValue == (TEXT("charset=utf-8")))
+					if (!LowerValue.Contains(TEXT("charset=")) || LowerValue.Contains(TEXT("charset=utf-8")))
 					{
 						bIsUTF8Valid = true;
 					}
 				}
 				if (bIsJsonChecked)
 				{
-					if (LowerValue == (TEXT("application/json")) || LowerValue == (TEXT("text/json")))
+					if (LowerValue.Contains(TEXT("application/json")) || LowerValue.Contains(TEXT("text/json")))
 					{	
 						bIsJsonValid = true;
 					}

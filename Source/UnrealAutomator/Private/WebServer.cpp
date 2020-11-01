@@ -83,6 +83,9 @@ void FWebServer::BindRouters(const TSharedPtr<IHttpRouter>& HttpRouter)
 	// execute gm command
 	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/command/gm"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteGMCommand);
 
+	// execute lua command
+	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/command/lua"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteLuaCommand);
+
 	/* ====================== Scene Handler ==================== */
 
 	// get current level info

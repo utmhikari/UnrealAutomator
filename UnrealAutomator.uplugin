@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "UnrealAutomator",
-	"Description": "automator for unreal4 engine, based on GAutomator",
+	"Description": "Game test automator for UE4",
 	"Category": "Test",
 	"CreatedBy": "utmhikari",
 	"CreatedByURL": "http://utmhikari.top/",
@@ -14,6 +14,12 @@
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
 	"Installed": false,
+	"Plugins": [
+		{
+			"Name": "UnLua",
+			"Enabled": false
+		}
+	],
 	"Modules": [
 		{
 			"Name": "UnrealAutomator",
