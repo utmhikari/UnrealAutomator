@@ -48,6 +48,7 @@ public class UnrealAutomator : ModuleRules
 				// Lua Support
 				//"Lua",
 				//"UnLua",
+				//"slua_unreal",
 			}
 			);
 		

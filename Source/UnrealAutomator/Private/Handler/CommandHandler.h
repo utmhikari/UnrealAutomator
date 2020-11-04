@@ -5,12 +5,22 @@
 #include "Runtime/Online/HTTPServer/Public/HttpResultCallback.h"
 
 
+// Suggested adding public definitions in Build.cs file
+
 // UnLua
 #if defined(AUTO_UNLUA_STARTUP)
 #define UA_UNLUA_ENABLED 1
 #include "Unlua.h"
 #include "UnLuaDelegates.h"
 #endif
+
+// slua_unreal
+#if defined(ENABLE_PROFILER)
+#define UA_SLUA_ENABLED 1
+#include "LuaState.h"
+#include "lua/lua.hpp"
+#endif
+
 
 
 class FCommandHandler
@@ -33,6 +43,9 @@ public:
 
 private:
 #if defined(UA_UNLUA_ENABLED)
+	/**
+	 * Error message of UnLua
+	 */
 	static FString UnLuaCallErrorMessage;
 
 	/**

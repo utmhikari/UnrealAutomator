@@ -18,6 +18,10 @@
 		{
 			"Name": "UnLua",
 			"Enabled": false
+		},
+		{
+			"Name": "slua_unreal",
+			"Enabled": false
 		}
 	],
 	"Modules": [
