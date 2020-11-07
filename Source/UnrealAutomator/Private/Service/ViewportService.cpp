@@ -1,7 +1,7 @@
 #include "Service/ViewportService.h"
 #include "Engine/UserInterfaceSettings.h"
 #include "Engine.h"
-#include "Log.h"
+#include "UALog.h"
 
 #ifdef __ANDROID__
 #include "Android/AndroidWindow.h"

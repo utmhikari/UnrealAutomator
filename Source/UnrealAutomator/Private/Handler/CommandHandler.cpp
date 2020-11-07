@@ -1,7 +1,7 @@
 #include "Handler/CommandHandler.h"
 #include "Util/WebUtil.h"
 #include "Engine.h"
-#include "../Log.h"
+#include "UALog.h"
 #include "Service/PlayerService.h"
 
 
@@ -25,13 +25,12 @@ TUniquePtr<FHttpServerResponse> FCommandHandler::ExecuteUECommand(const FHttpSer
 	}
 	PlayerController->ConsoleCommand(Command);
 	UE_LOG(LogUnrealAutomator, Log, TEXT("Executed UE command: %s"), *Command);
+
 #if WITH_EDITOR
-	if (GEngine != nullptr)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.0, FColor::Yellow,
-			FString::Printf(TEXT("Executed UE command: %s"), *Command));
-	}
+	GEngine->AddOnScreenDebugMessage(-1, 10.0, FColor::Yellow,
+		FString::Printf(TEXT("Executed UE command: %s"), *Command));
 #endif
+
 	return FWebUtil::SuccessResponse(TEXT("Executed UE command!"));
 }
 

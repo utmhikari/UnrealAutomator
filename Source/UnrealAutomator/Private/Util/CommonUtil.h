@@ -14,6 +14,9 @@ public:
 	static FString GetCurrentTime();
 
 	// Json parse string to object
-	static TSharedPtr<FJsonObject> JsonParse(FString Str);	
+	static TSharedPtr<FJsonObject> JsonParse(FString Str);
+
+	// Json stringify object to string
+	static FString JsonStringify(TSharedPtr<FJsonObject> JsonObject);
 };
 

@@ -1,3 +1,3 @@
-#include "Log.h"
+#include "UALog.h"
 
 DEFINE_LOG_CATEGORY(LogUnrealAutomator)

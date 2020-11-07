@@ -1,7 +1,7 @@
 #include "WebServer.h"
 #include "Util/WebUtil.h"
 #include "Engine.h"
-#include "Log.h"
+#include "UALog.h"
 #include "Runtime/Online/HTTPServer/Public/HttpServerModule.h"
 #include "Runtime/Online/HTTPServer/Public/HttpPath.h"
 
@@ -12,6 +12,7 @@
 #include "Handler/UIHandler.h"
 #include "Handler/CommandHandler.h"
 #include "Handler/SceneHandler.h"
+#include "handler/ProfileHandler.h"
 
 
 
@@ -78,7 +79,7 @@ void FWebServer::BindRouters(const TSharedPtr<IHttpRouter>& HttpRouter)
 	/* ====================== Command Handler ==================== */
 
 	// execute unreal command
-	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/command/unreal"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteUECommand);
+	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/command/ue"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteUECommand);
 
 	// execute gm command
 	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/command/gm"), EHttpServerRequestVerbs::VERB_POST, &FCommandHandler::ExecuteGMCommand);
@@ -89,12 +90,17 @@ void FWebServer::BindRouters(const TSharedPtr<IHttpRouter>& HttpRouter)
 	/* ====================== Scene Handler ==================== */
 
 	// get current level info
-	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/scene/level/current/info"), EHttpServerRequestVerbs::VERB_GET, &FSceneHandler::GetCurrentLevelInfo);
+	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/scene/level/info/current"), EHttpServerRequestVerbs::VERB_GET, &FSceneHandler::GetCurrentLevelInfo);
 
 	// get actors info
 	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/scene/actors/info"), EHttpServerRequestVerbs::VERB_POST, &FSceneHandler::GetActorsInfo);
 
 	// get actor info
 	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/scene/actor/info"), EHttpServerRequestVerbs::VERB_GET, &FSceneHandler::GetActorInfo);
+
+	/* ======================= Profile Handler ===================== */
+
+	// get profile stat
+	FWebUtil::BindRoute(HttpRouter, TEXT("/v1/profile/stats"), EHttpServerRequestVerbs::VERB_GET, &FProfileHandler::GetProfileStats);
 }
 

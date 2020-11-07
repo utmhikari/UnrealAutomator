@@ -2,7 +2,7 @@
 
 #include "UnrealAutomator.h"
 #include "WebServer.h"
-#include "Log.h"
+#include "UALog.h"
 #include "Engine.h"
 #include "HTTPServer\Public\HttpServerModule.h"
 

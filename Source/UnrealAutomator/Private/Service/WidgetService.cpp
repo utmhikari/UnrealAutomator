@@ -1,5 +1,5 @@
 #include "Service/WidgetService.h"
-#include "Log.h"
+#include "UALog.h"
 #include "Engine.h"
 #include "Util/InspectUtil.h"
 #include "Blueprint/SlateBlueprintLibrary.h"

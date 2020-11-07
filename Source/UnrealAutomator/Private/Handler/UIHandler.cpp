@@ -5,7 +5,7 @@
 #include "Util/CommonUtil.h"
 #include "Model/UIModel.h"
 #include "Engine.h"
-#include "Log.h"
+#include "UALog.h"
 
 
 TUniquePtr<FHttpServerResponse> FUIHandler::GetWidgetTree(const FHttpServerRequest& Request)

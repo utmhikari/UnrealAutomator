@@ -4,7 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Engine.h"
-#include "Log.h"
+#include "UALog.h"
 #include "Service/WidgetService.h"
 #include "Service/ViewportService.h"
 

@@ -1,5 +1,5 @@
 #include "Util/InspectUtil.h"
-#include "Log.h"
+#include "UALog.h"
 
 
 UProperty* FInspectUtil::GetPropertyByName(UObject* Object, FString Name)

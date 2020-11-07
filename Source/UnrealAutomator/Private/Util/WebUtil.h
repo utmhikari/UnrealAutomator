@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Log.h"
+#include "UALog.h"
 #include "Runtime/Online/HTTPServer/Public/HttpServerModule.h"
 #include "Runtime/Online/HTTPServer/Public/HttpServerRequest.h"
 #include "Runtime/Online/HTTPServer/Public/HttpServerResponse.h"
@@ -80,6 +80,11 @@ public:
 
 		return true;
 	}
+
+	/**
+	 * Success response (empty)
+	 */
+	static TUniquePtr<FHttpServerResponse> SuccessResponse();
 
 	/**
 	 * Success response (data & message)

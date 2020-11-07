@@ -2,7 +2,7 @@
 #include "Util/WebUtil.h"
 #include "Service/BaseService.h"
 #include "Engine.h"
-#include "Log.h"
+#include "UALog.h"
 
 
 TUniquePtr<FHttpServerResponse> FBaseHandler::HealthCheck(const FHttpServerRequest& Request)

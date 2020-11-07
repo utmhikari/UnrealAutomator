@@ -30,3 +30,15 @@ TSharedPtr<FJsonObject> FCommonUtil::JsonParse(FString Str)
 	}
 	return JsonObject;
 }
+
+FString FCommonUtil::JsonStringify(TSharedPtr<FJsonObject> JsonObject)
+{
+	// json to string
+	FString JsonStr = TEXT("");
+	if (JsonObject != nullptr)
+	{
+		TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonStr);
+		FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
+	}
+	return JsonStr;
+}

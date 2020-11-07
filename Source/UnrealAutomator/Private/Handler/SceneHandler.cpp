@@ -4,7 +4,7 @@
 #include "Misc/DefaultValueHelper.h"
 #include "Engine.h"
 #include "Model/SceneModel.h"
-#include "Log.h"
+#include "UALog.h"
 
 
 TUniquePtr<FHttpServerResponse> FSceneHandler::GetCurrentLevelInfo(const FHttpServerRequest& Request)

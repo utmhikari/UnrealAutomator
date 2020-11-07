@@ -1,6 +1,6 @@
 #include "SceneModel.h"
 #include "Util/InspectUtil.h"
-#include "Log.h"
+#include "UALog.h"
 
 
 FString FSceneActorQuery::ToString()

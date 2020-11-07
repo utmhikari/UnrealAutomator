@@ -1,6 +1,6 @@
 #include "Util/WebUtil.h"
 #include "Util/CommonUtil.h"
-#include "Log.h"
+#include "UALog.h"
 #include "Engine.h"
 #include "Kismet/KismetStringLibrary.h"
 
@@ -87,6 +87,11 @@ TSharedPtr<FJsonObject> FWebUtil::GetRequestJsonBody(const FHttpServerRequest& R
 	}
 
 	return RequestBody;
+}
+
+TUniquePtr<FHttpServerResponse> FWebUtil::SuccessResponse()
+{
+	return JsonResponse(MakeShareable(new FJsonObject()), TEXT(""), true, static_cast<int32>(EHttpResponseCode::Success));
 }
 
 TUniquePtr<FHttpServerResponse> FWebUtil::SuccessResponse(TSharedPtr<FJsonObject> Data, FString Message)
