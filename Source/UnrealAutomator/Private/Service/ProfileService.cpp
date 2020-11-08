@@ -5,6 +5,8 @@
 #include "Util/CommonUtil.h"
 #include "Runtime/Core/Public/HAL/LowLevelMemTracker.h"
 
+
+/* see GenericPlatformMemory.cpp */
 TSharedPtr<FJsonObject> FProfileService::GetPlatformMemoryStats()
 {
 	FString PlatformName = UGameplayStatics::GetPlatformName();
@@ -23,7 +25,7 @@ TSharedPtr<FJsonObject> FProfileService::GetPlatformMemoryStats()
 	UE_LOG(LogUnrealAutomator, Warning, TEXT("Cannot get %s memory stats! Definition lost!"), *PlatformName);
 	MemoryStats = FPlatformMemoryStats();
 #endif
-	// see GenericPlatformMemory.cpp
+	
 	TSharedPtr<FJsonObject> MemoryStatsJson = MakeShareable(new FJsonObject());
 	MemoryStatsJson->SetNumberField(TEXT("TotalPhysical"), MemoryStats.TotalPhysical);
 	MemoryStatsJson->SetNumberField(TEXT("TotalVirtual"), MemoryStats.TotalVirtual);
@@ -64,6 +66,10 @@ TSharedPtr<FJsonObject> FProfileService::GetFPSStats()
 	return FPSStatsJson;
 }
 
+/**
+ * See HAL/LowLevelMemTracker.h
+ * If detailed info is needed, a proper solution is to make vars/functions explicitly in LLM.h/.cpp
+ */
 TSharedPtr<FJsonObject> FProfileService::GetLLMStats()
 {
 #if ENABLE_LOW_LEVEL_MEM_TRACKER && STATS
@@ -129,5 +135,31 @@ TSharedPtr<FJsonObject> FProfileService::GetLLMStats()
 #else
 	UE_LOG(LogUnrealAutomator, WARNING, TEXT("Cannot get LLM stats! STATS or ENABLE_LOW_LEVEL_MEM_TRACKER macro not enabled!"));
 	return nullptr;
+#endif
+}
+
+
+TSharedPtr<FJsonObject> FProfileService::GetCPUStats()
+{
+	FString PlatformName = UGameplayStatics::GetPlatformName();
+#if defined(UA_PROFILE_SERVICE_OS_UNKNOWN)
+	UE_LOG(UALog, Warning, TEXT("Failed to get platform CPU stats! Unknown OS %s!"), *PlatformName);
+	return nullptr;
+#else
+	FCPUTime CPUTime(0.0, 0.0);
+#if defined(UA_PROFILE_SERVICE_OS_WINDOWS)
+	CPUTime = FWindowsPlatformTime::GetCPUTime();
+#elif defined(UA_PROFILE_SERVICE_OS_ANDROID)
+	CPUTime = FAndroidTime::GetCPUTime();
+#elif defined(UA_PROFILE_SERVICE_OS_IOS)
+	CPUTime = FApplePlatformTime::GetCPUTime();
+#else
+	UE_LOG(LogUnrealAutomator, Warning, TEXT("Cannot get %s CPU stats! Definition lost!"), *PlatformName);
+#endif
+	TSharedPtr<FJsonObject> CPUStatsJson = MakeShareable(new FJsonObject());
+	CPUStatsJson->SetNumberField(TEXT("Pct"), CPUTime.CPUTimePct);
+	CPUStatsJson->SetNumberField(TEXT("PctRelative"), CPUTime.CPUTimePctRelative);
+	UE_LOG(LogUnrealAutomator, Log, TEXT("Get %s CPU stats: %s"), *PlatformName, *FCommonUtil::JsonStringify(CPUStatsJson));
+	return CPUStatsJson;
 #endif
 }

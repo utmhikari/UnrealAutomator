@@ -25,6 +25,10 @@ TUniquePtr<FHttpServerResponse> FProfileHandler::GetProfileStats(const FHttpServ
 	TSharedPtr<FJsonObject> FPSStats = FProfileService::GetFPSStats();
 	ResponseBody->SetObjectField(TEXT("FPS"), FPSStats);
 
+	/* CPU */
+	TSharedPtr<FJsonObject> CPUStats = FProfileService::GetCPUStats();
+	ResponseBody->SetObjectField(TEXT("CPU"), CPUStats);
+
 	return FWebUtil::SuccessResponse(ResponseBody);
 
 }

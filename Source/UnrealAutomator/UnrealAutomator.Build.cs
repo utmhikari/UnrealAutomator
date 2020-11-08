@@ -34,11 +34,13 @@ public class UnrealAutomator : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
+				"Core",
 				"CoreUObject",
 				"Engine",
 				"Slate",
 				"SlateCore",
-				// ... add private dependencies that you statically link with here ...
+				//"RHI",
+				//"RenderCore",
 				"HTTP",
 				"HTTPServer",
 				"JsonUtilities",
