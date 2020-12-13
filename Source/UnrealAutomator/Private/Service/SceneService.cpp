@@ -152,6 +152,11 @@ TArray<TSharedPtr<FJsonValue>> FSceneService::GetActors(FSceneActorQuery Query)
 	return ActorsJson;
 }
 
+TArray<TSharedPtr<FJsonValue>> FSceneService::GetAllActors()
+{
+	return GetActors(FSceneActorQuery());
+}
+
 TSharedPtr<FJsonObject> FSceneService::ActorToJson(AActor* Actor)
 {
 	if (Actor == nullptr)

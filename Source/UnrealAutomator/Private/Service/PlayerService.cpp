@@ -19,6 +19,7 @@ APawn* FPlayerService::GetPlayerPawn()
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Failed to get player controller!"));
 		}
 #endif
+		UE_LOG(LogUnrealAutomator, Warning, TEXT("No player controller available!"));
 		return nullptr;
 	}
 	auto PlayerPawn = PlayerController->GetPawn();

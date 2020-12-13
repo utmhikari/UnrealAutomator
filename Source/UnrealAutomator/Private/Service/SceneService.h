@@ -28,6 +28,11 @@ public:
 	 */
 	static TArray<TSharedPtr<FJsonValue>> GetActors(FSceneActorQuery Query);
 
+	/**
+	 * Get all actors
+	 */
+	static TArray<TSharedPtr<FJsonValue>> GetAllActors();
+
 private:
 	/**
 	 * Actor to json
