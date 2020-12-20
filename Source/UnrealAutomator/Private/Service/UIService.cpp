@@ -137,7 +137,11 @@ void FUIService::TraverseWidget(UWidget* Widget, const TSharedPtr<FJsonObject>& 
 	}
 
 	TSharedPtr<FJsonObject> WidgetJson = FWidgetService::GetWidgetJson(Widget);
-	WidgetJson->SetNumberField(TEXT("ParentID"), Parent->GetNumberField("ID"));
+
+	uint32 ParentID;
+	if (Parent->TryGetNumberField(TEXT("ID"), ParentID)) {
+		WidgetJson->SetNumberField(TEXT("ParentID"), ParentID);
+	}
 
 	// traverse children of widget if enabled and visible
 	if (Widget->IsVisible() && Widget->GetIsEnabled())

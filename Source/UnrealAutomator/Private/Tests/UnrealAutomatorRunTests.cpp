@@ -19,7 +19,9 @@ bool FUnrealAutomatorWidgetTest::RunTest(const FString& Parameters)
 	auto WidgetJson = FUIService::GetWidgetTreeJson();
 	auto WidgetJsonString = FCommonUtil::JsonStringify(WidgetJson);
 	UE_LOG(LogUnrealAutomator, Log, TEXT("Current widget: %s"), *WidgetJsonString);
-	return !WidgetJsonString.IsEmpty() && !WidgetJsonString.Equals(TEXT("{}"));
+	TSharedPtr<FJsonObject> DefaultJsonObj = MakeShareable(new FJsonObject());
+	return !WidgetJsonString.IsEmpty() &&
+		!WidgetJsonString.Equals(FCommonUtil::JsonStringify(DefaultJsonObj));
 }
 
 

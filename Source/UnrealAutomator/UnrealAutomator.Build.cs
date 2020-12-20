@@ -47,7 +47,6 @@ public class UnrealAutomator : ModuleRules
 				"Json",
 				"UMG",
 				"InputCore",
-				"AutomationDriver",
 				// Lua Support
 				//"Lua",
 				//"UnLua",
